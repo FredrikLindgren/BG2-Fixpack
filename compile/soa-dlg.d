@@ -69,14 +69,14 @@ REPLACE_ACTION_TEXT ~marl~     ~MoveToPoint(\[\.\])~ ~MoveToPoint([-1.-1])~
 REPLACE_ACTION_TEXT ~mazzy4~   ~Enemt(~ ~Enemy(~
 REPLACE_ACTION_TEXT ~mazzyj~   ~\bEscapeAreaMove("AR2002",341,400,12)*~ ~EscapeAreaMove("AR2002",341,400,12)~
 REPLACE_ACTION_TEXT ~mazzyj~   ~ActionOverride("uhrang01",StartDialogueNoSet(\[PC\])+~ ~ActionOverride("uhrang01",StartDialogueNoSet([PC]))~
-REPLACE_ACTION_TEXT ~melica~   ~GiveItemCreate("MISC49,LastTalkedToBy,0,0,0)~ ~GiveItemCreate("MISC49",LastTalkedToBy,0,0,0)~ //"
+REPLACE_ACTION_TEXT ~melica~   ~GiveItemCreate("MISC49,LastTalkedToBy,0,0,0)~ ~GiveItemCreate("MISC49",LastTalkedToBy,0,0,0)~
 REPLACE_ACTION_TEXT ~mgappr03~ ~CreateItem(\("?[a-z|A-Z|0-9]+"?\))~ ~CreateItem(\1,1,1,1)~
 REPLACE_ACTION_TEXT ~pelanna~  ~ActionOverride("arntra03",MoveToPointNoInterrupt(\[2192\.1535\])+~ ~ActionOverride("arntra03",MoveToPointNoInterrupt([2192.1535]))~
 REPLACE_ACTION_TEXT ~ppsaem3~  ~GiveItem(\[PC\],"misc8u")~ ~~
 REPLACE_ACTION_TEXT ~quayle~   ~\bSetGlobalTimer("CircusEnded","GLOBAL",ONE_DAY)*~ ~SetGlobalTimer("CircusEnded","GLOBAL",ONE_DAY)~
-REPLACE_ACTION_TEXT ~sahimp02~ ~CreateVisualEffectObject("SPSTRENH,"CHEST6")~ ~CreateVisualEffectObject("SPSTRENH","CHEST6")~ //"
+REPLACE_ACTION_TEXT ~sahimp02~ ~CreateVisualEffectObject("SPSTRENH,"CHEST6")~ ~CreateVisualEffectObject("SPSTRENH","CHEST6")~
 REPLACE_ACTION_TEXT ~shape~    ~Polymorph(RAKHASA)~ ~Polymorph(RAKSHASA)~
-REPLACE_ACTION_TEXT ~sharte~   ~ChangeAIScript("SHARTEEL,OVERRIDE)~ ~ChangeAIScript("SHARTEEL",OVERRIDE)~ //"
+REPLACE_ACTION_TEXT ~sharte~   ~ChangeAIScript("SHARTEEL,OVERRIDE)~ ~ChangeAIScript("SHARTEEL",OVERRIDE)~
 REPLACE_ACTION_TEXT ~shoal~    ~ActionOverride("Droth",MoveToPoint(\[2900\.525\])+~ ~ActionOverride("Droth",MoveToPoint([2900.525]))~
 REPLACE_ACTION_TEXT ~test2~    ~Attack(\[0\],0,\[0\])~ ~Attack(NearestEnemyOf(Myself))~
 REPLACE_ACTION_TEXT ~udphae01~ ~EscapeArea(\("[a-z|A-Z|0-9]+"\)?)~ ~EscapeArea()~

@@ -1788,6 +1788,8 @@ COPY_EXISTING ~statdesc.2da~ ~override~
 
 APPEND ~tooltip.2da~ 
   ~RODS02A           6337         6352        6350~ // adds dupe rod of lordly might
+
+APPEND ~tooltip.2da~
   ~MISC3AA           6618         4731        -1~ // adds dupe book of infinite spells
 
 COPY_EXISTING ~THAC0.2DA~ ~override~
