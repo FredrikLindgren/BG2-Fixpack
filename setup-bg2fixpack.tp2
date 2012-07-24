@@ -1,7 +1,7 @@
 BACKUP ~bg2fixpack/backup~ // location to store files for uninstall purposes
 AUTHOR ~webmaster@gibberlings3.net~ // email address displayed if install fails
 
-VERSION ~v9.11~
+VERSION ~v9.14~
 
 README ~bg2fixpack/readme-bg2fixpack.html~
 
@@ -1443,8 +1443,8 @@ COPY_EXISTING ~kit.ids~ ~override~
   REPLACE_TEXTUALLY ~.*\bTOTEMIC\b~                ~0x4010 TOTEMIC~
   REPLACE_TEXTUALLY ~.*\bSHAPESHIFTER\b~           ~0x4011 SHAPESHIFTER~
   REPLACE_TEXTUALLY ~.*\bBEASTFRIEND\b~            ~0x4012 BEASTFRIEND~
-  REPLACE_TEXTUALLY ~.*\bBARBARIAN\b~              ~0x0000 BARBARIAN~
-  REPLACE_TEXTUALLY ~.*\bWILDMAGE\b~               ~0x0000 WILDMAGE~
+  //REPLACE_TEXTUALLY ~.*\bBARBARIAN\b~              ~0x0000 BARBARIAN~ //Avoid changing the values, what with ToBEx and all (Wisp)
+  //REPLACE_TEXTUALLY ~.*\bWILDMAGE\b~               ~0x0000 WILDMAGE~
   BUT_ONLY_IF_IT_CHANGES
 
 APPEND ~kit.ids~ ~0x4000 TRUECLASS~
@@ -2505,266 +2505,6 @@ COPY_EXISTING ~ABAZDRAG.BCS~ ~override~
     REPLACE_TEXTUALLY %Global("R0406PitFight","",3)% %Global("PitFight","AR0406",3)%
   COMPILE_BAF_TO_BCS
   BUT_ONLY_IF_IT_CHANGES
-
-// stop (kuo-toan) archers and air elementals from charging across areas to engage party
-EXTEND_TOP ~airele01.bcs~ ~bg2fixpack/baf/gparcher.baf~
-EXTEND_TOP ~gparcher.bcs~ ~bg2fixpack/baf/gparcher.baf~
-
-// bard playhouse issues--transition can be left open
-COPY_EXISTING ~ar0522.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~GlobalTimerExpired("MeetHiggin6a","GLOBAL")~
-                      ~GlobalTimerExpired("MeetHiggin6a","GLOBAL") Global("BardPlot1","GLOBAL",40)~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// bard playhouse issues--jenna not going to proper spot, meck sometimes not appearing upon completion
-COPY_EXISTING ~ar0523.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~ActionOverride("bdact03",MoveToPoint(\[1301\.453\]))~
-                      ~ActionOverride("bdact03",MoveToPoint([1301.181]))~
-    APPEND_FILE ~bg2fixpack/baf/ar0523.baf~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// can still rest in lathander temple after stripped due to var scope issue
-COPY_EXISTING ~ar0901.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~"AR0902"~ ~"AR0901"~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// paladin-firkraag journal entry not being set due to bad variable scope
-COPY_EXISTING ~ar1202.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~"AR1200"~ ~"AR1202"~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// ch 6 allies check wrong drizzt DV
-COPY_EXISTING ~c6arkan.bcs~ ~override~
-              ~c6eric.bcs~  ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~("c6drizz")~ ~("c6drizz2")~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-COPY_EXISTING ~demglasu.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~See(\[ANYONE\])[%tab% %lnl%%mnl%%wnl%]+Global("Prep","LOCALS",1)~  ~See([ANYONE])~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY
-
-// script should check live and dead troll DV
-COPY_EXISTING ~firamb01.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~\([^!]\)Dead("firamb05")~ ~\1OR(2) Dead("firamb03") Dead("firamb05")~
-  COMPILE_BAF_TO_BCS
-
-// don't interrupt lucette when she's kiling xzar
-COPY_EXISTING ~harpass1.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~FaceObject("Lyros")~ ~SetInterrupt(FALSE) DialogInterrupt(FALSE) FaceObject("Lyros")~
-    REPLACE_TEXTUALLY ~StartDialog\(ue\)?NoSet(Player1)~ ~DialogInterrupt(TRUE) SetInterrupt(TRUE) StartDialogueNoSet(Player1)~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// script fixes for anarg-smuggler battle; see also kaypal03.bcs, kaysmg04.bcs
-COPY_EXISTING ~kaypal02.bcs~ ~override~
- DECOMPILE_BCS_TO_BAF
-   REPLACE_TEXTUALLY ~(\[NEUTRAL\.0\.HUMAN\.THIEF\])~ ~([NOTGOOD.0.0.CLERIC])~
-   REPLACE_TEXTUALLY ~(\[ENEMY\.0\.HUMAN\.THIEF\])~   ~([NOTGOOD.0.0.THIEF]) Name("kaysmg",LastSeenBy(Myself))~
-   REPLACE_TEXTUALLY ~AttackReevaluate(NearestEnemyOf(Myself),15)~
-                     ~AttackReevaluate(LastSeenBy(Myself),15)~
- COMPILE_BAF_TO_BCS
- BUT_ONLY_IF_IT_CHANGES
-
-// script fixes for anarg-smuggler battle; see also kaypal02.bcs, kaysmg04.bcs
-COPY_EXISTING ~kaypal03.bcs~ ~override~
- DECOMPILE_BCS_TO_BAF
-   REPLACE_TEXTUALLY ~AttackReevaluate(NearestEnemyOf(Myself),30)~ 
-                     ~AttackReevaluate(LastSeenBy(Myself),30)~
- COMPILE_BAF_TO_BCS
- BUT_ONLY_IF_IT_CHANGES
-
-// script fixes for anarg-smuggler battle; see also kaypal02.bcs, kaypal03.bcs
-COPY_EXISTING ~kaysmg04.bcs~ ~override~
- DECOMPILE_BCS_TO_BAF
-   REPLACE_TEXTUALLY ~\(HPPercentLT("kaysmgl",50)[%tab% %lnl%%mnl%%wnl%]+See("kaysmgl")\)~ ~\1 !Dead("kaysmgl")~
-   REPLACE_TEXTUALLY ~HPPercentLT("kaysmg",30)[%tab% %lnl%%mnl%%wnl%]+See("kaysmg")~ 
-                     ~See([NOTGOOD.0.0.THIEF]) HPPercentLT(LastSeenBy(Myself),30) Name("kaysmg",LastSeenBy(Myself))~
- COMPILE_BAF_TO_BCS
- BUT_ONLY_IF_IT_CHANGES
-
-// flail of ages forge should still work after acquiring stronghold; wasn't due to bad variable scope
-COPY_EXISTING ~kpforge.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~,"AR1302",~ ~,"GLOBAL",~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// tyrianna should disappear after conclusion of her quest
-EXTEND_BOTTOM ~plgirl01.bcs~ ~bg2fixpack/baf/plgirl01.baf~
-
-// trigger misordering causing folks to flee from party, not enemies
-COPY_EXISTING ~runenemy.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~\(See(\[ENEMY\])\)[%tab% %lnl%%mnl%%wnl%]+\(!?Detect(\[PC\])\)~ ~\2 \1~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// habib shouldn't spawn if dead
-COPY_EXISTING ~slilmat.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~Global("SpawnHabib","GLOBAL",5)~
-                      ~Global("SpawnHabib","GLOBAL",5) !Dead("Habib")~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// new troll scripts to transform to dead versions at low HP
-COPY_EXISTING ~troll01.bcs~  ~override/cdtroll1.bcs~
-              ~trolsn01.bcs~ ~override/obsice11.bcs~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~ChangeAnimationNoEffect("TROLSN02")~ ~ChangeAnimationNoEffect("obsice11")~
-    REPLACE_TEXTUALLY ~ChangeAnimationNoEffect("TROLL02")~  ~ChangeAnimationNoEffect("cdtroll2")~
-  COMPILE_BAF_TO_BCS
-
-// new troll scripts to transform from dead to alive after time expires
-COPY_EXISTING ~troll02.bcs~  ~override/cdtroll2.bcs~
-              ~trolsn02.bcs~ ~override/obsice01.bcs~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~ReallyForceSpell(Myself,TROLL_CHANGE)~      ~ReallyForceSpellRES("cdtroll1",Myself)~
-    REPLACE_TEXTUALLY ~ReallyForceSpell(Myself,TROLL_SNOW_CHANGE)~ ~ReallyForceSpellRES("obsice01",Myself)~
-  COMPILE_BAF_TO_BCS
-  
-// dialogue breaks in phaere's recue if Sola is invald for dialogue
-EXTEND_TOP ~udphae01.bcs~ ~bg2fixpack/baf/udphae01.baf~
-
-// prevent Yoshimo telling you to see Renal when you already have
-COPY_EXISTING ~yoshimo.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~Global("YoshimoMentionsRenal","LOCALS",0)~ ~Global("YoshimoMentionsRenal","LOCALS",0) Global("TalkedToRenal","GLOBAL",0)~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// multiple stringheads for thieves return fix; not paying thieves guild quota fix; see also baldur.bcs, joster.bcs, shthlt01.dlg
-COPY_EXISTING ~ar0322.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~SetGlobal("NotifyThiefHead","GLOBAL",0)~ ~~
-    REPLACE_TEXTUALLY ~CreateCreature("SHTH05",\[691\.292\],2)~
-      ~SetGlobal("CDJoster","AR0322",1) CreateCreature("SHTH05",[691.292],2)~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// not paying thieves guild quota fix; see also ar0322.bcs, joster.bcs, shthlt01.dlg
-COPY_EXISTING ~baldur.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~\bGlobal("JosterLeave","GLOBAL",2)~ ~!Global("JosterLeave","GLOBAL",1)~
-  COMPILE_BAF_TO_BCS
-  BUT_ONLY_IF_IT_CHANGES
-
-// not paying thieves guild quota fix; see also ar0322.bcs, baldur.bcs, shthlt01.dlg
-EXTEND_BOTTOM ~joster.bcs~ ~bg2fixpack/baf/joster.baf~
-
-// prevent dupe CoC items; see also sahkng01.bcs, sahpr4.cre, sahpr2.dlg, string sets
-EXTEND_BOTTOM ~ar2300.bcs~   ~bg2fixpack/baf/ar2300.baf~
-
-// prevent dupe CoC items; see also ar2300.bcs, sahpr4.cre, sahpr2.dlg, string sets
-EXTEND_BOTTOM ~sahkng01.bcs~ ~bg2fixpack/baf/sahkng01.baf~
-
-// deirex killed during cutscene fix 1/2; see jarlich.cre
-EXTEND_BOTTOM ~ar2207.bcs~ ~bg2fixpack/baf/ar2207.baf~
-
-/// Tolgerias only vanishes once (proposed by Jastey, coded by DavidW)
-COPY_EXISTING ~ar1002.bcs~ ~override~
-	DECOMPILE_BCS_TO_BAF
-	REPLACE_TEXTUALLY CASE_INSENSITIVE ~Dead("TOLGER2")~ ~Dead("TOLGER2")Exists("tolger")~
-	COMPILE_BAF_TO_BCS
-BUT_ONLY_IF_IT_CHANGES
-
-// The Twisted Rune entrance trigger in the Bridge District should only consume a single Rogue Stone (aVENGER)
-COPY_EXISTING ~tran1008.bcs~ ~override~
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY CASE_INSENSITIVE ~TakePartyItem("MISC45")~ ~TakePartyItemNum("MISC45",1)~
-  COMPILE_BAF_TO_BCS
-BUT_ONLY_IF_IT_CHANGES
-
-// Unlock the main door to Bodhi's lair if the player sides with her in Chapter 2 (aVENGER)
-COPY_EXISTING ~AR0801.BCS~ ~override~ 
-DECOMPILE_BCS_TO_BAF
-  REPLACE_TEXTUALLY EXACT_MATCH ~SetGlobal("SpawnBodhiFriends","AR0801",1)~ ~SetGlobal("SpawnBodhiFriends","AR0801",1) Unlock("DOOR03")~
-COMPILE_BAF_TO_BCS
-BUT_ONLY_IF_IT_CHANGES
-
-// Assembling the Flail of Ages piece by piece should grant an XP reward (Wisp)
-COPY_EXISTING kpforge.bcs override
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~TakePartyItem("\(blun14[abc]\)")[ %lnl%]+TakePartyItem("\(blun14[ghi]\)")[ %lnl%]+TakePartyItem("\(blun14[def]\)")[ %lnl%]+GiveItemCreate("BLUN14",LastTrigger,0,0,0)[%lnl%]END~ ~TakePartyItem("\1") TakePartyItem("\2") TakePartyItem("\3") GiveItemCreate("BLUN14",LastTrigger,0,0,0) AddexperienceParty(22350) SetGlobal("ForgeUsed","GLOBAL",1) END~
-  COMPILE_BAF_TO_BCS
-BUT_ONLY
-
-// Yoshimo should not drop two hearts when slain by a petrification effect (Nythrun)
-COPY_EXISTING yoshimox.bcs override
-  DECOMPILE_BCS_TO_BAF
-    REPLACE_TEXTUALLY ~^\(  Die()\)~ ~\1 !StateCheck(Myself,128)~
-  COMPILE_BAF_TO_BCS
-BUT_ONLY
-
-// Hostile Planetars and Devas should not attempt to heal party members (Nythrun and aVENGER)
-ACTION_FOR_EACH script IN devaevil devagood plangood BEGIN
-  ACTION_IF GAME_IS ~tob~ && FILE_EXISTS_IN_GAME ~%script%.bcs~ THEN BEGIN
-    COPY_EXISTING ~%script%.bcs~ override
-      DECOMPILE_BCS_TO_BAF
-        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_LESSER_RESTORATION)~ ~HaveSpell(CLERIC_LESSER_RESTORATION) Allegiance(Myself,GOODCUTOFF)~
-        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_NEUTRALIZE_POISON)~ ~HaveSpell(CLERIC_NEUTRALIZE_POISON) Allegiance(Myself,GOODCUTOFF)~
-        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_REMOVE_FEAR)~ ~HaveSpell(CLERIC_REMOVE_FEAR) Allegiance(Myself,GOODCUTOFF)~
-        REPLACE_TEXTUALLY ~HPPercentLT(MostDamagedOf(Myself),25)~ ~HPPercentLT(MostDamagedOf(Myself),25) Allegiance(Myself,GOODCUTOFF)~
-        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_DISPEL_MAGIC)~ ~HaveSpell(CLERIC_DISPEL_MAGIC) Allegiance(Myself,GOODCUTOFF)~
-      COMPILE_BAF_TO_BCS
-    BUT_ONLY
-  END
-END
-
-// Hostile and out of party Minsc and Valygar shouldn't heal party members (Nythrun)
-COPY_EXISTING minscx.bcs   override
-              valvsed.bcs  override
-              valygx.bcs   override
-  REPLACE_TEXTUALLY ~^0 0 0 0 0 0 0 1 6 0 0 0 ""OB~ ~0 0 0 0 0 0 0 1 0 0 0 0 ""OB~
-BUT_ONLY
-IF ~^0 0 0 0 0 0 0 1 6 0 0 0 ""OB~
-
-// Waukeen's Promenade script loop fix (Nythrun)
-COPY_EXISTING ar0700.bcs override
-  DECOMPILE_BCS_TO_BAF 
-    REPLACE_TEXTUALLY
-    ~^\(  GlobalTimerExpired("Bystander","GLOBAL")\)~
-    ~\1 OR(2) InMyArea("bystand1") InMyArea("bystand2")~
-  COMPILE_BAF_TO_BCS
-BUT_ONLY
-
-/// Ployer breaks the game if he meets Jaheira when she has fewer than 20 hit points. (see also dw#fpplo.spl) (proposed and originally coded by Icendoan, 
-//// this code by DavidW)
-COPY_EXISTING ~cut12b.bcs~ ~override~
-	DECOMPILE_BCS_TO_BAF
-	REPLACE_TEXTUALLY CASE_INSENSITIVE ~ForceSpell("Jaheira",JAHEIRA_WEAKNESS)~ ~ApplySpellRES("dw#fpplo","Jaheira")SmallWait(5)ForceSpell("Jaheira",JAHEIRA_WEAKNESS)~
-	COMPILE_BAF_TO_BCS
-BUT_ONLY_IF_IT_CHANGES
-
-ACTION_IF FILE_EXISTS_IN_GAME ~mel01.cre~ THEN BEGIN // tob
-
-  COPY_EXISTING ~demnabsu.bcs~ ~override~
-                ~dempitsu.bcs~ ~override~
-    DECOMPILE_BCS_TO_BAF
-      REPLACE_TEXTUALLY ~See(\[ANYONE\])~ ~See([ANYONE]) CheckStatLT(LastSeenBy(Myself),1,169)~
-    COMPILE_BAF_TO_BCS
-    BUT_ONLY
-
-  // Killing unrelated baatezu outside Ka'rashur's room should not turn him and his cohort in Watcher's Keep hostile (see also ar3005.are, ar3006.are, ar3009.are and ar6012.are) (Wisp)
-  COPY_EXISTING yssumm2.bcs override
-    DECOMPILE_BCS_TO_BAF
-      REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~"gorbat2"~ ~"deriny01"~
-    COMPILE_BAF_TO_BCS
-END
 
 /////                                                  \\\\\
 ///// eou romance fixes                                \\\\\
@@ -3894,12 +3634,14 @@ COPY_EXISTING ~udeggs.BCS~ ~override~
   COMPILE_BAF_TO_BCS
   BUT_ONLY_IF_IT_CHANGES
 
-// Killing war elves while escaping Underdark let's you kill the surface elves
-COPY_EXISTING ~udelf1.bcs~ ~override~
-              ~udelf2.bcs~ ~override~
-              ~udelf3.bcs~ ~override~
+// Killing war elves while escaping Underdark lets you kill the surface elves
+COPY_EXISTING  ~c6elf.bcs~ ~override~
+			 ~c6elhan.bcs~ ~override~
+			 ~c6extra.bcs~ ~override~
+			 ~c6gener.bcs~ ~override~
+			 ~warsage.bcs~ ~override~
   DECOMPILE_BCS_TO_BAF
-  REPLACE_TEXTUALLY ~SetGlobal("GoodElfKill","GLOBAL",1)~ ~SetGlobal("GoodElfKill","GLOBAL",2)~
+  REPLACE_TEXTUALLY ~Global("GoodElfKill","GLOBAL",0)~ ~GlobalLT("GoodElfKill","GLOBAL",2)~
   COMPILE_BAF_TO_BCS
   BUT_ONLY_IF_IT_CHANGES
 
@@ -3978,6 +3720,266 @@ ACTION_IF FILE_EXISTS_IN_GAME ~mel01.cre~ THEN BEGIN // ToB check
   // sarevok soundset fixes
   EXTEND_BOTTOM ~sarev25.bcs~ ~bg2fixpack/baf/sarev25.baf~
 
+END
+
+// stop (kuo-toan) archers and air elementals from charging across areas to engage party
+EXTEND_TOP ~airele01.bcs~ ~bg2fixpack/baf/gparcher.baf~
+EXTEND_TOP ~gparcher.bcs~ ~bg2fixpack/baf/gparcher.baf~
+
+// bard playhouse issues--transition can be left open
+COPY_EXISTING ~ar0522.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~GlobalTimerExpired("MeetHiggin6a","GLOBAL")~
+                      ~GlobalTimerExpired("MeetHiggin6a","GLOBAL") Global("BardPlot1","GLOBAL",40)~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// bard playhouse issues--jenna not going to proper spot, meck sometimes not appearing upon completion
+COPY_EXISTING ~ar0523.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~ActionOverride("bdact03",MoveToPoint(\[1301\.453\]))~
+                      ~ActionOverride("bdact03",MoveToPoint([1301.181]))~
+    APPEND_FILE ~bg2fixpack/baf/ar0523.baf~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// can still rest in lathander temple after stripped due to var scope issue
+COPY_EXISTING ~ar0901.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~"AR0902"~ ~"AR0901"~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// paladin-firkraag journal entry not being set due to bad variable scope
+COPY_EXISTING ~ar1202.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~"AR1200"~ ~"AR1202"~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// ch 6 allies check wrong drizzt DV
+COPY_EXISTING ~c6arkan.bcs~ ~override~
+              ~c6eric.bcs~  ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~("c6drizz")~ ~("c6drizz2")~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+COPY_EXISTING ~demglasu.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~See(\[ANYONE\])[%tab% %lnl%%mnl%%wnl%]+Global("Prep","LOCALS",1)~  ~See([ANYONE])~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY
+
+// script should check live and dead troll DV
+COPY_EXISTING ~firamb01.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~\([^!]\)Dead("firamb05")~ ~\1OR(2) Dead("firamb03") Dead("firamb05")~
+  COMPILE_BAF_TO_BCS
+
+// don't interrupt lucette when she's kiling xzar
+COPY_EXISTING ~harpass1.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~FaceObject("Lyros")~ ~SetInterrupt(FALSE) DialogInterrupt(FALSE) FaceObject("Lyros")~
+    REPLACE_TEXTUALLY ~StartDialog\(ue\)?NoSet(Player1)~ ~DialogInterrupt(TRUE) SetInterrupt(TRUE) StartDialogueNoSet(Player1)~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// script fixes for anarg-smuggler battle; see also kaypal03.bcs, kaysmg04.bcs
+COPY_EXISTING ~kaypal02.bcs~ ~override~
+ DECOMPILE_BCS_TO_BAF
+   REPLACE_TEXTUALLY ~(\[NEUTRAL\.0\.HUMAN\.THIEF\])~ ~([NOTGOOD.0.0.CLERIC])~
+   REPLACE_TEXTUALLY ~(\[ENEMY\.0\.HUMAN\.THIEF\])~   ~([NOTGOOD.0.0.THIEF]) Name("kaysmg",LastSeenBy(Myself))~
+   REPLACE_TEXTUALLY ~AttackReevaluate(NearestEnemyOf(Myself),15)~
+                     ~AttackReevaluate(LastSeenBy(Myself),15)~
+ COMPILE_BAF_TO_BCS
+ BUT_ONLY_IF_IT_CHANGES
+
+// script fixes for anarg-smuggler battle; see also kaypal02.bcs, kaysmg04.bcs
+COPY_EXISTING ~kaypal03.bcs~ ~override~
+ DECOMPILE_BCS_TO_BAF
+   REPLACE_TEXTUALLY ~AttackReevaluate(NearestEnemyOf(Myself),30)~ 
+                     ~AttackReevaluate(LastSeenBy(Myself),30)~
+ COMPILE_BAF_TO_BCS
+ BUT_ONLY_IF_IT_CHANGES
+
+// script fixes for anarg-smuggler battle; see also kaypal02.bcs, kaypal03.bcs
+COPY_EXISTING ~kaysmg04.bcs~ ~override~
+ DECOMPILE_BCS_TO_BAF
+   REPLACE_TEXTUALLY ~\(HPPercentLT("kaysmgl",50)[%tab% %lnl%%mnl%%wnl%]+See("kaysmgl")\)~ ~\1 !Dead("kaysmgl")~
+   REPLACE_TEXTUALLY ~HPPercentLT("kaysmg",30)[%tab% %lnl%%mnl%%wnl%]+See("kaysmg")~ 
+                     ~See([NOTGOOD.0.0.THIEF]) HPPercentLT(LastSeenBy(Myself),30) Name("kaysmg",LastSeenBy(Myself))~
+ COMPILE_BAF_TO_BCS
+ BUT_ONLY_IF_IT_CHANGES
+
+// flail of ages forge should still work after acquiring stronghold; wasn't due to bad variable scope
+COPY_EXISTING ~kpforge.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~,"AR1302",~ ~,"GLOBAL",~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// tyrianna should disappear after conclusion of her quest
+EXTEND_BOTTOM ~plgirl01.bcs~ ~bg2fixpack/baf/plgirl01.baf~
+
+// trigger misordering causing folks to flee from party, not enemies
+COPY_EXISTING ~runenemy.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~\(See(\[ENEMY\])\)[%tab% %lnl%%mnl%%wnl%]+\(!?Detect(\[PC\])\)~ ~\2 \1~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// habib shouldn't spawn if dead
+COPY_EXISTING ~slilmat.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~Global("SpawnHabib","GLOBAL",5)~
+                      ~Global("SpawnHabib","GLOBAL",5) !Dead("Habib")~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// new troll scripts to transform to dead versions at low HP
+COPY_EXISTING ~troll01.bcs~  ~override/cdtroll1.bcs~
+              ~trolsn01.bcs~ ~override/obsice11.bcs~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~ChangeAnimationNoEffect("TROLSN02")~ ~ChangeAnimationNoEffect("obsice11")~
+    REPLACE_TEXTUALLY ~ChangeAnimationNoEffect("TROLL02")~  ~ChangeAnimationNoEffect("cdtroll2")~
+  COMPILE_BAF_TO_BCS
+
+// new troll scripts to transform from dead to alive after time expires
+COPY_EXISTING ~troll02.bcs~  ~override/cdtroll2.bcs~
+              ~trolsn02.bcs~ ~override/obsice01.bcs~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~ReallyForceSpell(Myself,TROLL_CHANGE)~      ~ReallyForceSpellRES("cdtroll1",Myself)~
+    REPLACE_TEXTUALLY ~ReallyForceSpell(Myself,TROLL_SNOW_CHANGE)~ ~ReallyForceSpellRES("obsice01",Myself)~
+  COMPILE_BAF_TO_BCS
+  
+// dialogue breaks in phaere's recue if Sola is invald for dialogue
+EXTEND_TOP ~udphae01.bcs~ ~bg2fixpack/baf/udphae01.baf~
+
+// prevent Yoshimo telling you to see Renal when you already have
+COPY_EXISTING ~yoshimo.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~Global("YoshimoMentionsRenal","LOCALS",0)~ ~Global("YoshimoMentionsRenal","LOCALS",0) Global("TalkedToRenal","GLOBAL",0)~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// multiple stringheads for thieves return fix; not paying thieves guild quota fix; see also baldur.bcs, joster.bcs, shthlt01.dlg
+COPY_EXISTING ~ar0322.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~SetGlobal("NotifyThiefHead","GLOBAL",0)~ ~~
+    REPLACE_TEXTUALLY ~CreateCreature("SHTH05",\[691\.292\],2)~
+      ~SetGlobal("CDJoster","AR0322",1) CreateCreature("SHTH05",[691.292],2)~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// not paying thieves guild quota fix; see also ar0322.bcs, joster.bcs, shthlt01.dlg
+COPY_EXISTING ~baldur.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~\bGlobal("JosterLeave","GLOBAL",2)~ ~!Global("JosterLeave","GLOBAL",1)~
+  COMPILE_BAF_TO_BCS
+  BUT_ONLY_IF_IT_CHANGES
+
+// not paying thieves guild quota fix; see also ar0322.bcs, baldur.bcs, shthlt01.dlg
+EXTEND_BOTTOM ~joster.bcs~ ~bg2fixpack/baf/joster.baf~
+
+// prevent dupe CoC items; see also sahkng01.bcs, sahpr4.cre, sahpr2.dlg, string sets
+EXTEND_BOTTOM ~ar2300.bcs~   ~bg2fixpack/baf/ar2300.baf~
+
+// prevent dupe CoC items; see also ar2300.bcs, sahpr4.cre, sahpr2.dlg, string sets
+EXTEND_BOTTOM ~sahkng01.bcs~ ~bg2fixpack/baf/sahkng01.baf~
+
+// deirex killed during cutscene fix 1/2; see jarlich.cre
+EXTEND_BOTTOM ~ar2207.bcs~ ~bg2fixpack/baf/ar2207.baf~
+
+/// Tolgerias only vanishes once (proposed by Jastey, coded by DavidW)
+COPY_EXISTING ~ar1002.bcs~ ~override~
+	DECOMPILE_BCS_TO_BAF
+	REPLACE_TEXTUALLY CASE_INSENSITIVE ~Dead("TOLGER2")~ ~Dead("TOLGER2")Exists("tolger")~
+	COMPILE_BAF_TO_BCS
+BUT_ONLY_IF_IT_CHANGES
+
+// The Twisted Rune entrance trigger in the Bridge District should only consume a single Rogue Stone (aVENGER)
+COPY_EXISTING ~tran1008.bcs~ ~override~
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY CASE_INSENSITIVE ~TakePartyItem("MISC45")~ ~TakePartyItemNum("MISC45",1)~
+  COMPILE_BAF_TO_BCS
+BUT_ONLY_IF_IT_CHANGES
+
+// Unlock the main door to Bodhi's lair if the player sides with her in Chapter 2 (aVENGER)
+COPY_EXISTING ~AR0801.BCS~ ~override~ 
+DECOMPILE_BCS_TO_BAF
+  REPLACE_TEXTUALLY EXACT_MATCH ~SetGlobal("SpawnBodhiFriends","AR0801",1)~ ~SetGlobal("SpawnBodhiFriends","AR0801",1) Unlock("DOOR03")~
+COMPILE_BAF_TO_BCS
+BUT_ONLY_IF_IT_CHANGES
+
+// Assembling the Flail of Ages piece by piece should grant an XP reward (Wisp)
+COPY_EXISTING kpforge.bcs override
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~TakePartyItem("\(blun14[abc]\)")[ %lnl%]+TakePartyItem("\(blun14[ghi]\)")[ %lnl%]+TakePartyItem("\(blun14[def]\)")[ %lnl%]+GiveItemCreate("BLUN14",LastTrigger,0,0,0)[%lnl%]END~ ~TakePartyItem("\1") TakePartyItem("\2") TakePartyItem("\3") GiveItemCreate("BLUN14",LastTrigger,0,0,0) AddexperienceParty(22350) SetGlobal("ForgeUsed","GLOBAL",1) END~
+  COMPILE_BAF_TO_BCS
+BUT_ONLY
+
+// Yoshimo should not drop two hearts when slain by a petrification effect (Nythrun)
+COPY_EXISTING yoshimox.bcs override
+  DECOMPILE_BCS_TO_BAF
+    REPLACE_TEXTUALLY ~^\(  Die()\)~ ~\1 !StateCheck(Myself,128)~
+  COMPILE_BAF_TO_BCS
+BUT_ONLY
+
+// Hostile Planetars and Devas should not attempt to heal party members (Nythrun and aVENGER)
+ACTION_FOR_EACH script IN devaevil devagood plangood BEGIN
+  ACTION_IF GAME_IS ~tob~ && FILE_EXISTS_IN_GAME ~%script%.bcs~ THEN BEGIN
+    COPY_EXISTING ~%script%.bcs~ override
+      DECOMPILE_BCS_TO_BAF
+        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_LESSER_RESTORATION)~ ~HaveSpell(CLERIC_LESSER_RESTORATION) Allegiance(Myself,GOODCUTOFF)~
+        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_NEUTRALIZE_POISON)~ ~HaveSpell(CLERIC_NEUTRALIZE_POISON) Allegiance(Myself,GOODCUTOFF)~
+        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_REMOVE_FEAR)~ ~HaveSpell(CLERIC_REMOVE_FEAR) Allegiance(Myself,GOODCUTOFF)~
+        REPLACE_TEXTUALLY ~HPPercentLT(MostDamagedOf(Myself),25)~ ~HPPercentLT(MostDamagedOf(Myself),25) Allegiance(Myself,GOODCUTOFF)~
+        REPLACE_TEXTUALLY ~HaveSpell(CLERIC_DISPEL_MAGIC)~ ~HaveSpell(CLERIC_DISPEL_MAGIC) Allegiance(Myself,GOODCUTOFF)~
+      COMPILE_BAF_TO_BCS
+    BUT_ONLY
+  END
+END
+
+// Hostile and out of party Minsc and Valygar shouldn't heal party members (Nythrun)
+COPY_EXISTING minscx.bcs   override
+              valvsed.bcs  override
+              valygx.bcs   override
+  REPLACE_TEXTUALLY ~^0 0 0 0 0 0 0 1 6 0 0 0 ""OB~ ~0 0 0 0 0 0 0 1 0 0 0 0 ""OB~
+BUT_ONLY
+IF ~^0 0 0 0 0 0 0 1 6 0 0 0 ""OB~
+
+// Waukeen's Promenade script loop fix (Nythrun)
+COPY_EXISTING ar0700.bcs override
+  DECOMPILE_BCS_TO_BAF 
+    REPLACE_TEXTUALLY
+    ~^\(  GlobalTimerExpired("Bystander","GLOBAL")\)~
+    ~\1 OR(2) InMyArea("bystand1") InMyArea("bystand2")~
+  COMPILE_BAF_TO_BCS
+BUT_ONLY
+
+/// Ployer breaks the game if he meets Jaheira when she has fewer than 20 hit points. (see also dw#fpplo.spl) (proposed and originally coded by Icendoan, 
+//// this code by DavidW)
+COPY_EXISTING ~cut12b.bcs~ ~override~
+	DECOMPILE_BCS_TO_BAF
+	REPLACE_TEXTUALLY CASE_INSENSITIVE ~ForceSpell("Jaheira",JAHEIRA_WEAKNESS)~ ~ApplySpellRES("dw#fpplo","Jaheira")SmallWait(5)ForceSpell("Jaheira",JAHEIRA_WEAKNESS)~
+	COMPILE_BAF_TO_BCS
+BUT_ONLY_IF_IT_CHANGES
+
+ACTION_IF FILE_EXISTS_IN_GAME ~mel01.cre~ THEN BEGIN // tob
+
+  COPY_EXISTING ~demnabsu.bcs~ ~override~
+                ~dempitsu.bcs~ ~override~
+    DECOMPILE_BCS_TO_BAF
+      REPLACE_TEXTUALLY ~See(\[ANYONE\])~ ~See([ANYONE]) CheckStatLT(LastSeenBy(Myself),1,169)~
+    COMPILE_BAF_TO_BCS
+    BUT_ONLY
+
+  // Killing unrelated baatezu outside Ka'rashur's room should not turn him and his cohort in Watcher's Keep hostile (see also ar3005.are, ar3006.are, ar3009.are and ar6012.are) (Wisp)
+  COPY_EXISTING yssumm2.bcs override
+    DECOMPILE_BCS_TO_BAF
+      REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~"gorbat2"~ ~"deriny01"~
+    COMPILE_BAF_TO_BCS
 END
 
 /////                                                  \\\\\
@@ -7683,406 +7685,6 @@ COPY_EXISTING ~bearblsu.cre~ ~override~
               ~xvartsu.cre~  ~override~
   WRITE_BYTE 0x275 6 // summoned
   BUT_ONLY_IF_IT_CHANGES
-
-// anomen specifics fix
-COPY_EXISTING ~anomen6.cre~  ~override~
-              ~anomen7.cre~  ~override~
-              ~anomen8.cre~  ~override~
-              ~anomen9.cre~  ~override~
-              ~anomen10.cre~ ~override~
-              ~anomen12.cre~ ~override~
-  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
-    WRITE_BYTE 0x274 0 //specifics
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// add sleeping flag to sleeping creatures
-COPY_EXISTING ~arnman11.cre~ ~override~
-              ~arnwar03.cre~ ~override~
-  READ_BYTE  0x20 "state"
-  WRITE_BYTE 0x20 ("%state%" BAND 0b11101111) // remove the STATE_INVISIBILITY flag
-  BUT_ONLY_IF_IT_CHANGES
-
-// These are all player accessible
-COPY_EXISTING ~bearblsu.cre~ ~override~ // Black Bear (sppr501.spl -> spanim2.eff -> anisum02.2da)
-              ~bearbrsu.cre~ ~override~ // Brown Bear (sppr501.spl -> spanim2.eff -> anisum02.2da)
-              ~bearcasu.cre~ ~override~ // Cave Bear (sppr501.spl -> spanim2.eff -> anisum02.2da) (sppr602.spl -> spanim3.eff -> anisum03.2da)
-              ~bearposu.cre~ ~override~ // Mountain Bear (sppr602.spl -> spanim3.eff -> anisum03.2da) (sppr604.spl -> spanim04.eff -> anisum04.2da)
-              ~catliosu.cre~ ~override~ // Lion (sppr501.spl -> spanim2.eff -> anisum02.2da) (sppr602.spl -> spanim3.eff -> anisum03.2da)
-              ~catliowp.cre~ ~override~ // Joolon (misc3d.itm -> figlion.eff)
-              ~demglasu.cre~ ~override~ // Glabrezu (spwi807.spl -> spfiend.eff)
-              ~djinnisu.cre~ ~override~ // Djinni (spwi718.spl -> spdj.eff)
-              ~dogwasu.cre~  ~override~ // War Dog (sppr402.spl -> spani01.eff -> anisum01.2da)
-              ~dogwisu.cre~  ~override~ // Rabid Dog (spwi309.spl -> spmon1.eff -> spwi309.spl)
-              ~efreetsu.cre~ ~override~ // Efreeti (spwi717.spl -> spefreet.eff)
-              ~ettercsu.cre~ ~override~ // Ettercap (spwi503.spl -> spmon3.eff -> monsum03.2da)
-              ~ghastsu.cre~  ~override~ // Skeleton (sppr301.spl/spwi501.spl -> spandead.eff)
-              ~gnollsu.cre~  ~override~ // Gnoll Elite (spwi407.spl -> spmon2.eff -> monsum02.2da)
-              ~haksu.cre~    ~override~ // Hakeashar (spwi719.spl -> sphack.eff)
-              ~hobgobsu.cre~ ~override~ // Hobgoblin Elite (spwi407.spl -> spmon2.eff -> monsum02.2da)
-              ~koboldsu.cre~ ~override~ // Kobold Commando (spwi309.spl -> spmon1.eff -> spwi309.spl
-              ~nishrusu.cre~ ~override~ // Nishruu (spwi624.spl -> spnish.eff)
-              ~nymphsu.cre~  ~override~ // Nymph (sppr410.spl -> nymphsu.eff)
-              ~ogregrsu.cre~ ~override~ // Ogre Berserker (spwi503.spl -> spmon3.eff -> monsum03.2da)
-              ~rabbitsu.cre~ ~override~ // Rabbit (spwi919 -> wish02.cre -> spin735.spl -> rabbitsu.eff)
-              ~servsu.cre~   ~override~ // Aerial Servant (sppr601.spl -> spserv.eff)
-              ~skelwasu.cre~ ~override~ // Skeleton Warrior (sppr301.spl/spwi501 -> spandl15.eff)
-              ~smoundsu.cre~ ~override~ // Shambling Mound (staf14.itm -> mound.eff)
-              ~spidgisu.cre~ ~override~ // Giant Spider (spwi423.spl -> spidgisu.eff)
-              ~spidphsu.cre~ ~override~ // Phase Spider (spwi423.spl -> spidphsu.eff)
-              ~spidswsu.cre~ ~override~ // Sword Spider (spwi423.spl -> spidswsu.eff)
-              ~stalke.cre~   ~override~ // Invisible Stalker (spwi601.spl -> spstalk.eff)
-              ~sumdjinn.cre~ ~override~ // Djinni (ring26.itm -> sumdjinn.eff)
-              ~sumelair.cre~ ~override~ // Lesser Air Elemental (staf15.itm -> staf15.eff)
-              ~sumefree.cre~ ~override~ // Efreeti (misc3c.itm -> sumefr.eff)
-              ~sumelear.cre~ ~override~ // Lesser Earth Elemental (staf16.itm -> staf16.eff)
-              ~sumelfir.cre~ ~override~ // Lesser Fire Elemental (staf17.itm -> staf17.eff)
-              ~tomegol1.cre~ ~override~ // Flesh Golem (tome01.itm -> tome01.eff)
-              ~tomegol2.cre~ ~override~ // Clay Golem (tome02.itm -> tome02.eff)
-              ~tomegol3.cre~ ~override~ // Stone Golem (tome03.itm -> tome03.eff
-              ~tomegol4.cre~ ~override~ // Juggernaut Golem (tome04.itm -> tome04.eff)
-              ~wish02.cre~   ~override~ // Djinni (spwi919.spl)
-              ~wolfdisu.cre~ ~override~ // Dire Wolf (sppr402.spl -> spani01.eff -> anisum01.2da) (spwi407.spl -> spmon2.eff -> monsum02.2da)
-              ~wolfwwsu.cre~ ~override~ // Winter Wolf (sppr602.spl -> spanim3.eff -> anisum03.2da)
-              ~worgsu.cre~   ~override~ // Worg (spwi309.spl -> spmon1.eff -> spwi309.spl)
-              ~wyvernsu.cre~ ~override~ // Wyvern (spwi619.spl -> wyvernsu.eff)
-              // and these are enemy only but summoned in a familiar way
-              ~c6guen.cre~   ~override~ // Guenhwyvar (c6drizz.cre -> c6drizz1.dlg)
-              ~sahangu.cre~  ~override~ // Anguiliian (ar2300.are -> sahambo6.cre -> sahambo6.bcs)
-              ~sahlace.cre~  ~override~ // Lacedon (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
-              ~sahskel.cre~  ~override~ // Skeleton Warrior (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
-              ~sahzomb.cre~  ~override~ // Sea Zombie (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
-              ~senstalk.cre~ ~override~ // Invisible Stalker (ar6108.bcs)
-              ~telelfir.cre~ ~override~ // Greater Fire Elemental (ar3010.are -> teltan1.cre -> teltan1.bcs -> spin570.spl -> sutelfir.eff)
-              ~telicesa.cre~ ~override~ // Ice Salamander (ar3010.are -> teltan2.cre -> teltan2.bcs -> spin569.spl -> sutelice.eff)
-              // These are unused but of obvious intent for UB authors - spend the day ironing your doilies and polishing your lawn instead
-              /*
-              ~basilgsu.cre~ ~override~ // Greater Basilisk (spwi8)
-              ~basillsu.cre~ ~override~ // Lesser Basilisk (spwi610.spl)
-              ~beargrsu.cre~ ~override~ // Grizzly Bear
-              ~catjagsu.cre~ ~override~ // Panther
-              ~ghastgsu.cre~ ~override~ // Greater Ghast
-              ~gibbersu.cre~ ~override~ // Gibberling
-              ~hamasu.cre~   ~override~ // Hamadryad
-              ~jaguarsu.cre~ ~override~ // Jaguar
-              ~jellmusu.cre~ ~override~ // Mustard Jelly (spwi610.spl)
-              ~ogremasu.cre~ ~override~ // Ogre Mage (spwi610.spl)
-              ~sumtan01.cre~ ~override~ // Tanar'ri
-              ~sumtan02.cre~ ~override~ // Tanar'ri
-              ~tasloisu.cre~ ~override~ // Tasloi Elite Trooper (spwi706.spl)
-              ~wolfsu.cre~   ~override~ // Wolf
-              ~wolfwisu.cre~ ~override~ // Winter Wolf (spwi610.spl)
-              ~wraithsu.cre~ ~override~ // Wraith
-              ~xvartsu.cre~  ~override~ // Xvart Protector
-              */
-  PATCH_IF (SOURCE_SIZE > 0x02d3) THEN BEGIN
-    WRITE_LONG 0x0014 0x00  // XP
-    WRITE_LONG 0x001c 0x00  // Gelt, just hobgobsu.cre
-    WRITE_BYTE 0x0240 0x00  // "Don't check morale"
-    READ_LONG  0x02bc ilo   // lazy overkill no-steal no-drop patch
-    FOR (READ_LONG 0x02c0 ilc; ilc > 0x00; ilc -= 0x01) BEGIN
-      READ_LONG  (ilo + (ilc * 0x14) - 0x04) flg
-      WRITE_LONG (ilo + (ilc * 0x14) - 0x04) (flg | 0x0a)
-    END
-  END
-  BUT_ONLY
-
-// wolfwere capt should have same DV for transformed, non-transformed creature files
-COPY_EXISTING ~firamb04.cre~ ~override~
-  WRITE_ASCII 0x280 ~firamb01~ #32
-
-// lvl 6 trolls should be routed through a different knocked-down version
-COPY_EXISTING ~firtrl01.cre~ ~override~
-              ~kptrol01.cre~ ~override~
-              ~kptrol02.cre~ ~override~
-              ~kptrol04.cre~ ~override~
-              ~kptrol05.cre~ ~override~
-  WRITE_ASCII 0x248 ~cdtroll1~
-  BUT_ONLY_IF_IT_CHANGES
-
-// deirex killed during cutscene fix 2/2; see 2207.bcs
-COPY_EXISTING ~jarlich.cre~ ~override~
-  WRITE_BYTE 0x270 128 // make neutral
-  BUT_ONLY_IF_IT_CHANGES
-
-// create 'dead' or 'knocked down' versions of 'special' trolls
-COPY_EXISTING ~obsice01.cre~ ~override/obsice11.cre~
-  WRITE_SHORT           0x24    1            // current HP
-  WRITE_SHORT           0x46   10            // natural AC
-  WRITE_SHORT           0x48   10            // effective AC
-  WRITE_BYTE            0x5a  100            // resist cold
-  WRITE_BYTE            0x5b  100            // resist electricity
-  WRITE_BYTE            0x5f  100            // resist magic cold
-  WRITE_BYTE            0x60  100            // resist slashing
-  WRITE_BYTE            0x61  100            // resist crushing
-  WRITE_BYTE            0x62  100            // resist piercing
-  WRITE_BYTE            0x63  100            // resist missile
-  WRITE_BYTE            0x23c   9            // dexterity
-  WRITE_BYTE            0x270 255            // enemy
-  WRITE_EVALUATED_ASCII 0x248 ~%SOURCE_RES%~ // new script
-  WRITE_ASCII           0x250 ~~ #32         // blanks all other script references
-  WRITE_ASCII           0x2cc ~~ #8          // blanks dialog file
-  // item changes
-  READ_LONG 0x2bc "itm_off"
-  READ_LONG 0x2c0 "itm_num"
-  FOR (index = 0 ; index < itm_num ; index = index + 1) BEGIN
-    READ_ASCII ("%itm_off%" + (0x14 * "%index%")) "item"
-    PATCH_IF (
-               ("%item%" STRING_COMPARE_CASE "monhp1" = 0) OR // so they can die
-               ("%item%" STRING_COMPARE_CASE "trollreg" = 0) OR // can't regenerate
-               ("%item%" STRING_COMPARE_CASE "trollspi" = 0) // makes dead spirit troll invisible
-             ) BEGIN
-      WRITE_ASCII ("%itm_off%" + (0x14 * "%index%")) ~trolldie~
-    END
-  END
-
-// add monhp1 item to trolls to prevent death; assign script to force transformation to dead form at low HP
-COPY_EXISTING ~obsice01.cre~ ~override~
-  ADD_CRE_ITEM ~monhp1~ #0 #0 #0 ~NONE~ ~AMULET~
-  WRITE_ASCII 0x260 ~obsice11~
-
-// attacking squatters in paladin-baron quest causes normal townspeople to turn hostile
-COPY_EXISTING ~plfarm04.cre~ ~override~
-              ~plfarm05.cre~ ~override~
-              ~plfarm06.cre~ ~override~
-  WRITE_ASCII 0x248 ~gensht01~ // override script
-  BUT_ONLY_IF_IT_CHANGES
-
-// prevent dupe CoC items; see also sahkng01.bcs, ar2300.bcs, sahpr2.dlg, string sets
-COPY_EXISTING ~sahpr4.cre~ ~override~
-  READ_LONG  0x2bc "itm_off"
-  READ_LONG  0x2c0 "itm_num"
-  FOR (index = 0 ; index < itm_num ; index = index + 1) BEGIN
-    READ_ASCII ("%itm_off%" + (0x14 * "%index%")) "item"
-    PATCH_IF ("%item%" STRING_COMPARE_CASE "misc8q" = 0) BEGIN
-      READ_BYTE   ("%itm_off%" + 0x10 + (0x14 * "%index%")) "flags"
-      WRITE_BYTE  ("%itm_off%" + 0x10 + (0x14 * "%index%")) ("%flags%" BOR   0b00001010) // adds unstealable, undroppable flags
-    END
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// name fixes
-COPY_EXISTING ~sarbul04.cre~ ~override~
-              ~sarbul05.cre~ ~override~
-  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
-    WRITE_LONG 0x08 68792
-    WRITE_LONG 0x0c 68792
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// Orcs sound like orcs; blanks human sounds
-COPY_EXISTING ~sarculto.cre~ ~override~
-              ~sarorc01.cre~ ~override~
-              ~saroro01.cre~ ~override~
-              ~sarrein1.cre~ ~override~
-              ~sartro01.cre~ ~override~
-              ~sartro03.cre~ ~override~
-  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
-    WRITE_LONG 0xa4 0xffffffff
-    WRITE_LONG 0xc8 0xffffffff
-    WRITE_LONG 0xec 0xffffffff
-    WRITE_LONG 0xf0 0xffffffff
-    WRITE_LONG 0x10c 0xffffffff
-    WRITE_LONG 0x198 0xffffffff
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// Silent Sapper (uses same soundset as sewdue01)
-COPY_EXISTING ~sewdue02.cre~ ~override~
-  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
-    SAY 0xa4 #4940
-    SAY 0xec #12584
-    SAY 0xf0 #12585
-    SAY 0x10c #4939
-    SAY 0x110 #4940
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// 'glowing pool' creature from lilarcor quest has dispellable invisibility (via mage item); add it directly as creature effect
-COPY_EXISTING ~sewsw.cre~  ~override~
-  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
-    READ_LONG 0x2a0 "kspl_off"
-    READ_LONG 0x2a8 "minfo_off"
-    READ_LONG 0x2b0 "mspl_off"
-    READ_LONG 0x2b8 "itmslot_off"
-    READ_LONG 0x2bc "itm_off"
-    READ_LONG 0x2c4 "fx_off"
-    READ_LONG 0x2c8 "fx_num"
-    SET "delta" = 1
-    INSERT_BYTES  "%fx_off%" 0x108 // inserting new effect
-      WRITE_LONG  ("%fx_off%" + 0x08)  20 // opcode: invis
-      WRITE_LONG  ("%fx_off%" + 0x1c)   1 // instant/permanent
-      WRITE_SHORT ("%fx_off%" + 0x24) 100 // prob
-    WRITE_LONG 0x2c8 ("%fx_num%" + "%delta%")
-    SET "offset" = ("%delta%" * 0x108)
-    PATCH_IF NOT ("%fx_off%" > "%kspl_off%") BEGIN
-      WRITE_LONG 0x2a0 ("%kspl_off%" + "%offset%")
-    END
-    PATCH_IF NOT ("%fx_off%" > "%minfo_off%") BEGIN
-      WRITE_LONG 0x2a8 ("%minfo_off%" + "%offset%")
-    END
-    PATCH_IF NOT ("%fx_off%" > "%mspl_off%") BEGIN
-      WRITE_LONG 0x2b0 ("%mspl_off%" + "%offset%")
-    END
-    PATCH_IF NOT ("%fx_off%" > "%itmslot_off%") BEGIN
-      WRITE_LONG 0x2b8 ("%itmslot_off%" + "%offset%")
-    END
-    PATCH_IF NOT ("%fx_off%" > "%itm_off%") BEGIN
-      WRITE_LONG 0x2bc ("%itm_off%" + "%offset%")
-    END
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-// add sleeping flag to sleeping creatures
-COPY_EXISTING ~sleepdw.cre~ ~override~   // sleeping dwarf
-              ~sleepfh.cre~ ~override~   // sleeping woman
-              ~sleepmh.cre~ ~override~   // sleeping man
-  READ_BYTE  0x20 "state"
-  WRITE_BYTE 0x20 ("%state%" BOR 0b00000001) // add the STATE_SLEEPING flag
-  BUT_ONLY_IF_IT_CHANGES
-
-// knocked-down trolls should match their live counterparts
-COPY_EXISTING ~troll02.cre~ ~override~
-  WRITE_BYTE 0x234 8
-  BUT_ONLY_IF_IT_CHANGES
-
-// knocked-down trolls should match their live counterparts
-COPY_EXISTING ~troll01.cre~ ~override/cdtroll1.cre~
-              ~troll02.cre~ ~override/cdtroll2.cre~
-  WRITE_BYTE   0x234 6
-  WRITE_ASCIIE 0x248 ~%DEST_RES%~
-
-// Correct a minor issue in Mazzy's soundset (aVENGER)
-ACTION_FOR_EACH ~file~ IN                                                          // for each of the following files
-               ~mazzy8~                                                            // Mazzy at level 8 (SoA)
-               ~mazzy9~                                                            // Mazzy at level 9 (SoA)
-              ~mazzy11~                                                            // Mazzy at level 11 (SoA)
-              ~mazzy12~                                                            // Mazzy at level 12 (SoA)
-              ~mazzy15~                                                            // Mazzy at level 15 (ToB)
-BEGIN                                                                              // execute the following
-ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN                                   // if the file exists
-COPY_EXISTING ~%file%.cre~ ~override~
-PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN                                        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
-  SAY EXISTANCE2 #29727 SAY EXISTANCE3 #-1                                         // assign the Spell Failed sound to the proper soundslot
-END                                                                                // ends file size check
-BUT_ONLY_IF_IT_CHANGES
-END                                                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
-END                                                                                // ends ACTION_FOR_EACH block
-
-// Prevent Ice Trolls from losing their coloring upon death (aVENGER)
-COPY_EXISTING ~TROLIC01.CRE~  ~override~ // Ice Troll
-              ~TROLIC02.CRE~  ~override~ // Ice Troll
-    READ_LONG 0x2c4 "fx_off"
-    READ_LONG 0x2c8 "fx_num"
-    FOR (index = 0; index < fx_num; index = index + 1) BEGIN
-      READ_LONG  ("%fx_off%" + 0x08 + ("%index%" * 0x108)) "opcode"
-      READ_LONG  ("%fx_off%" + 0x0c + ("%index%" * 0x108)) "target"
-      READ_LONG  ("%fx_off%" + 0x1c + ("%index%" * 0x108)) "timing"
-       PATCH_IF (("%opcode%" = "51") AND ("%target%" = "0")) BEGIN // effect #51: color strong/dark by rgb
-         WRITE_LONG ("%fx_off%" + 0x0c + ("%index%" * 0x108)) "1" // change the target to 1 (target: self)
-       END
-       PATCH_IF (("%opcode%" = "51") AND ("%timing%" = "1")) BEGIN // effect #51: color strong/dark by rgb
-         WRITE_LONG ("%fx_off%" + 0x1c + ("%index%" * 0x108)) "9" // change the timing mode to 9: permanent after death
-       END
-    END    
-BUT_ONLY_IF_IT_CHANGES
-
-// Correct mismatched names and tooltips (Nythrun and aVENGER)
-// Part 1: Name -> Tooltip
-ACTION_FOR_EACH ~file~ IN                          // for each of the following files
-            ~alphonse~                             // alphonse - servant
-            ~elesah02~                             // sahuagin baronial guard - baronial guard
-            ~kuotoa01~                             // kuo-toa warrior - kuo-toa
-            ~obssah03~                             // sahuagin baronial guard - baronial guard
-            ~sahbar01~                             // sahuagin baronial guard - baronial guard
-            ~sahextra~                             // sahuagin royal guard - royal guard
-            ~sahgrd01~                             // sahuagin royal guard - royal guard
-            ~sahgrd02~                             // sahuagin royal guard - royal guard
-            ~sahgrd03~                             // sahuagin royal guard - royal guard
-BEGIN                                              // execute the following
-ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN   // if the file exists
-COPY_EXISTING ~%file%.cre~ ~override~
-PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
-  READ_LONG  0x08 "name"                           // get the creature's name field strref
-  WRITE_LONG 0x0c "%name%"                         // make the creature's tooltip match its name
-END                                                // ends file size check
-BUT_ONLY_IF_IT_CHANGES
-END                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
-END                                                // ends ACTION_FOR_EACH block
-
-// Correct mismatched names and tooltips (Nythrun and aVENGER)
-// Part 2: Tooltip -> Name
-ACTION_FOR_EACH ~file~ IN                          // for each of the following files
-            ~behobs01~                             // beholder - observer
-            ~behspe01~                             // beholder - spectator
-            ~gendjn01~                             // djinni - noble djinni
-            ~genefn01~                             // efreeti - noble efreeti
-            ~kptrol06~                             // troll - ice troll
-             ~lasmist~                             // djinni - gaseous form
-            ~obsfir01~                             // efreeti - noble efreeti
-            ~ppbodbat~                             // vampire - vampire bat
-            ~ppdjinn2~                             // djinni - noble djinni
-            ~ppmind01~                             // mind flayer - ulitharid
-            ~rngbeh01~                             // beholder - death tyrant
-            ~tanomist~                             // vampire - gaseous form
-            ~trolfr01~                             // troll - freshwater troll
-            ~trolfr02~                             // troll - freshwater troll
-            ~trolsn01~                             // troll - snow troll
-            ~trolsn02~                             // troll - snow troll
-             ~udelder~                             // beholder - elder orb
-            ~valemist~                             // vampire - gaseous form
-             ~vampbat~                             // vampire - vampire bat
-BEGIN                                              // execute the following
-ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN   // if the file exists
-COPY_EXISTING ~%file%.cre~ ~override~
-PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
-  READ_LONG  0x0c "tooltip"                        // get the creature's tooltip field strref
-  WRITE_LONG 0x08 "%tooltip%"                      // make the creature's name match its tooltip
-END                                                // ends file size check
-BUT_ONLY_IF_IT_CHANGES
-END                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
-END                                                // ends ACTION_FOR_EACH block
-
-// Jan Jansen now properly receives his bonus spell per level for being a specialist mage (Nythrun)
-COPY_EXISTING jan8.cre     override
-              jan10.cre    override
-              jan11.cre    override
-              jan12.cre    override
-              jan15.cre    override
-  PATCH_IF SOURCE_SIZE > 0x2d3 BEGIN
-    ADD_MEMORIZED_SPELL spwi118 #0 WIZARD
-    ADD_MEMORIZED_SPELL spwi201 #1 WIZARD
-    ADD_MEMORIZED_SPELL spwi302 #2 WIZARD
-    PATCH_IF          ~%SOURCE_RES%~ STRING_EQUAL jan8  BEGIN
-      ADD_MEMORIZED_SPELL spwi405 #3 WIZARD
-    END ELSE PATCH_IF ~%SOURCE_RES%~ STRING_EQUAL jan10 BEGIN
-      ADD_MEMORIZED_SPELL spwi405 #3 WIZARD
-      ADD_MEMORIZED_SPELL spwi508 #4 WIZARD
-    END ELSE BEGIN
-      ADD_MEMORIZED_SPELL spwi401 #3 WIZARD
-      ADD_MEMORIZED_SPELL spwi508 #4 WIZARD
-    END
-  END
-BUT_ONLY
-
-// Creatures shouldn't have two-handed items equipped alongside shields (Nythrun and devSin)
-// Orc Archer
-COPY_EXISTING firarc01.cre override
-  REMOVE_CRE_ITEM shld05
-
-// Rielev 
-COPY_EXISTING rielev.cre override
-  REMOVE_CRE_ITEM mage01
-
-// Red Willy 
-COPY_EXISTING trple01.cre override
-  REMOVE_CRE_ITEM xbow01 bolt01
-
-
-// Lady Beth
-COPY_EXISTING bystand2.cre override
-  WRITE_ASCII 0x250 ~~ #8
-BUT_ONLY
 
 /////                                                  \\\\\
 ///// creatures with invalid item fixes                \\\\\
@@ -13916,6 +13518,405 @@ COPY_EXISTING "abydem01.cre" "override" // ringdemn
   END
   BUT_ONLY_IF_IT_CHANGES
 
+// anomen specifics fix
+COPY_EXISTING ~anomen6.cre~  ~override~
+              ~anomen7.cre~  ~override~
+              ~anomen8.cre~  ~override~
+              ~anomen9.cre~  ~override~
+              ~anomen10.cre~ ~override~
+              ~anomen12.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
+    WRITE_BYTE 0x274 0 //specifics
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// add sleeping flag to sleeping creatures
+COPY_EXISTING ~arnman11.cre~ ~override~
+              ~arnwar03.cre~ ~override~
+  READ_BYTE  0x20 "state"
+  WRITE_BYTE 0x20 ("%state%" BAND 0b11101111) // remove the STATE_INVISIBILITY flag
+  BUT_ONLY_IF_IT_CHANGES
+
+// These are all player accessible
+COPY_EXISTING ~bearblsu.cre~ ~override~ // Black Bear (sppr501.spl -> spanim2.eff -> anisum02.2da)
+              ~bearbrsu.cre~ ~override~ // Brown Bear (sppr501.spl -> spanim2.eff -> anisum02.2da)
+              ~bearcasu.cre~ ~override~ // Cave Bear (sppr501.spl -> spanim2.eff -> anisum02.2da) (sppr602.spl -> spanim3.eff -> anisum03.2da)
+              ~bearposu.cre~ ~override~ // Mountain Bear (sppr602.spl -> spanim3.eff -> anisum03.2da) (sppr604.spl -> spanim04.eff -> anisum04.2da)
+              ~catliosu.cre~ ~override~ // Lion (sppr501.spl -> spanim2.eff -> anisum02.2da) (sppr602.spl -> spanim3.eff -> anisum03.2da)
+              ~catliowp.cre~ ~override~ // Joolon (misc3d.itm -> figlion.eff)
+              ~demglasu.cre~ ~override~ // Glabrezu (spwi807.spl -> spfiend.eff)
+              ~djinnisu.cre~ ~override~ // Djinni (spwi718.spl -> spdj.eff)
+              ~dogwasu.cre~  ~override~ // War Dog (sppr402.spl -> spani01.eff -> anisum01.2da)
+              ~dogwisu.cre~  ~override~ // Rabid Dog (spwi309.spl -> spmon1.eff -> spwi309.spl)
+              ~efreetsu.cre~ ~override~ // Efreeti (spwi717.spl -> spefreet.eff)
+              ~ettercsu.cre~ ~override~ // Ettercap (spwi503.spl -> spmon3.eff -> monsum03.2da)
+              ~ghastsu.cre~  ~override~ // Skeleton (sppr301.spl/spwi501.spl -> spandead.eff)
+              ~gnollsu.cre~  ~override~ // Gnoll Elite (spwi407.spl -> spmon2.eff -> monsum02.2da)
+              ~haksu.cre~    ~override~ // Hakeashar (spwi719.spl -> sphack.eff)
+              ~hobgobsu.cre~ ~override~ // Hobgoblin Elite (spwi407.spl -> spmon2.eff -> monsum02.2da)
+              ~koboldsu.cre~ ~override~ // Kobold Commando (spwi309.spl -> spmon1.eff -> spwi309.spl
+              ~nishrusu.cre~ ~override~ // Nishruu (spwi624.spl -> spnish.eff)
+              ~nymphsu.cre~  ~override~ // Nymph (sppr410.spl -> nymphsu.eff)
+              ~ogregrsu.cre~ ~override~ // Ogre Berserker (spwi503.spl -> spmon3.eff -> monsum03.2da)
+              ~rabbitsu.cre~ ~override~ // Rabbit (spwi919 -> wish02.cre -> spin735.spl -> rabbitsu.eff)
+              ~servsu.cre~   ~override~ // Aerial Servant (sppr601.spl -> spserv.eff)
+              ~skelwasu.cre~ ~override~ // Skeleton Warrior (sppr301.spl/spwi501 -> spandl15.eff)
+              ~smoundsu.cre~ ~override~ // Shambling Mound (staf14.itm -> mound.eff)
+              ~spidgisu.cre~ ~override~ // Giant Spider (spwi423.spl -> spidgisu.eff)
+              ~spidphsu.cre~ ~override~ // Phase Spider (spwi423.spl -> spidphsu.eff)
+              ~spidswsu.cre~ ~override~ // Sword Spider (spwi423.spl -> spidswsu.eff)
+              ~stalke.cre~   ~override~ // Invisible Stalker (spwi601.spl -> spstalk.eff)
+              ~sumdjinn.cre~ ~override~ // Djinni (ring26.itm -> sumdjinn.eff)
+              ~sumelair.cre~ ~override~ // Lesser Air Elemental (staf15.itm -> staf15.eff)
+              ~sumefree.cre~ ~override~ // Efreeti (misc3c.itm -> sumefr.eff)
+              ~sumelear.cre~ ~override~ // Lesser Earth Elemental (staf16.itm -> staf16.eff)
+              ~sumelfir.cre~ ~override~ // Lesser Fire Elemental (staf17.itm -> staf17.eff)
+              ~tomegol1.cre~ ~override~ // Flesh Golem (tome01.itm -> tome01.eff)
+              ~tomegol2.cre~ ~override~ // Clay Golem (tome02.itm -> tome02.eff)
+              ~tomegol3.cre~ ~override~ // Stone Golem (tome03.itm -> tome03.eff
+              ~tomegol4.cre~ ~override~ // Juggernaut Golem (tome04.itm -> tome04.eff)
+              ~wish02.cre~   ~override~ // Djinni (spwi919.spl)
+              ~wolfdisu.cre~ ~override~ // Dire Wolf (sppr402.spl -> spani01.eff -> anisum01.2da) (spwi407.spl -> spmon2.eff -> monsum02.2da)
+              ~wolfwwsu.cre~ ~override~ // Winter Wolf (sppr602.spl -> spanim3.eff -> anisum03.2da)
+              ~worgsu.cre~   ~override~ // Worg (spwi309.spl -> spmon1.eff -> spwi309.spl)
+              ~wyvernsu.cre~ ~override~ // Wyvern (spwi619.spl -> wyvernsu.eff)
+              // and these are enemy only but summoned in a familiar way
+              ~c6guen.cre~   ~override~ // Guenhwyvar (c6drizz.cre -> c6drizz1.dlg)
+              ~sahangu.cre~  ~override~ // Anguiliian (ar2300.are -> sahambo6.cre -> sahambo6.bcs)
+              ~sahlace.cre~  ~override~ // Lacedon (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
+              ~sahskel.cre~  ~override~ // Skeleton Warrior (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
+              ~sahzomb.cre~  ~override~ // Sea Zombie (ar2003.are -> sahambo3.cre -> sahambo3.bcs)
+              ~senstalk.cre~ ~override~ // Invisible Stalker (ar6108.bcs)
+              ~telelfir.cre~ ~override~ // Greater Fire Elemental (ar3010.are -> teltan1.cre -> teltan1.bcs -> spin570.spl -> sutelfir.eff)
+              ~telicesa.cre~ ~override~ // Ice Salamander (ar3010.are -> teltan2.cre -> teltan2.bcs -> spin569.spl -> sutelice.eff)
+              // These are unused but of obvious intent for UB authors - spend the day ironing your doilies and polishing your lawn instead
+              /*
+              ~basilgsu.cre~ ~override~ // Greater Basilisk (spwi8)
+              ~basillsu.cre~ ~override~ // Lesser Basilisk (spwi610.spl)
+              ~beargrsu.cre~ ~override~ // Grizzly Bear
+              ~catjagsu.cre~ ~override~ // Panther
+              ~ghastgsu.cre~ ~override~ // Greater Ghast
+              ~gibbersu.cre~ ~override~ // Gibberling
+              ~hamasu.cre~   ~override~ // Hamadryad
+              ~jaguarsu.cre~ ~override~ // Jaguar
+              ~jellmusu.cre~ ~override~ // Mustard Jelly (spwi610.spl)
+              ~ogremasu.cre~ ~override~ // Ogre Mage (spwi610.spl)
+              ~sumtan01.cre~ ~override~ // Tanar'ri
+              ~sumtan02.cre~ ~override~ // Tanar'ri
+              ~tasloisu.cre~ ~override~ // Tasloi Elite Trooper (spwi706.spl)
+              ~wolfsu.cre~   ~override~ // Wolf
+              ~wolfwisu.cre~ ~override~ // Winter Wolf (spwi610.spl)
+              ~wraithsu.cre~ ~override~ // Wraith
+              ~xvartsu.cre~  ~override~ // Xvart Protector
+              */
+  PATCH_IF (SOURCE_SIZE > 0x02d3) THEN BEGIN
+    WRITE_LONG 0x0014 0x00  // XP
+    WRITE_LONG 0x001c 0x00  // Gelt, just hobgobsu.cre
+    WRITE_BYTE 0x0240 0x00  // "Don't check morale"
+    READ_LONG  0x02bc ilo   // lazy overkill no-steal no-drop patch
+    FOR (READ_LONG 0x02c0 ilc; ilc > 0x00; ilc -= 0x01) BEGIN
+      READ_LONG  (ilo + (ilc * 0x14) - 0x04) flg
+      WRITE_LONG (ilo + (ilc * 0x14) - 0x04) (flg | 0x0a)
+    END
+  END
+  BUT_ONLY
+
+// wolfwere capt should have same DV for transformed, non-transformed creature files
+COPY_EXISTING ~firamb04.cre~ ~override~
+  WRITE_ASCII 0x280 ~firamb01~ #32
+
+// lvl 6 trolls should be routed through a different knocked-down version
+COPY_EXISTING ~firtrl01.cre~ ~override~
+              ~kptrol01.cre~ ~override~
+              ~kptrol02.cre~ ~override~
+              ~kptrol04.cre~ ~override~
+              ~kptrol05.cre~ ~override~
+  WRITE_ASCII 0x248 ~cdtroll1~
+  BUT_ONLY_IF_IT_CHANGES
+
+// deirex killed during cutscene fix 2/2; see 2207.bcs
+COPY_EXISTING ~jarlich.cre~ ~override~
+  WRITE_BYTE 0x270 128 // make neutral
+  BUT_ONLY_IF_IT_CHANGES
+
+// create 'dead' or 'knocked down' versions of 'special' trolls
+COPY_EXISTING ~obsice01.cre~ ~override/obsice11.cre~
+  WRITE_SHORT           0x24    1            // current HP
+  WRITE_SHORT           0x46   10            // natural AC
+  WRITE_SHORT           0x48   10            // effective AC
+  WRITE_BYTE            0x5a  100            // resist cold
+  WRITE_BYTE            0x5b  100            // resist electricity
+  WRITE_BYTE            0x5f  100            // resist magic cold
+  WRITE_BYTE            0x60  100            // resist slashing
+  WRITE_BYTE            0x61  100            // resist crushing
+  WRITE_BYTE            0x62  100            // resist piercing
+  WRITE_BYTE            0x63  100            // resist missile
+  WRITE_BYTE            0x23c   9            // dexterity
+  WRITE_BYTE            0x270 255            // enemy
+  WRITE_EVALUATED_ASCII 0x248 ~%SOURCE_RES%~ // new script
+  WRITE_ASCII           0x250 ~~ #32         // blanks all other script references
+  WRITE_ASCII           0x2cc ~~ #8          // blanks dialog file
+  // item changes
+  READ_LONG 0x2bc "itm_off"
+  READ_LONG 0x2c0 "itm_num"
+  FOR (index = 0 ; index < itm_num ; index = index + 1) BEGIN
+    READ_ASCII ("%itm_off%" + (0x14 * "%index%")) "item"
+    PATCH_IF (
+               ("%item%" STRING_COMPARE_CASE "monhp1" = 0) OR // so they can die
+               ("%item%" STRING_COMPARE_CASE "trollreg" = 0) OR // can't regenerate
+               ("%item%" STRING_COMPARE_CASE "trollspi" = 0) // makes dead spirit troll invisible
+             ) BEGIN
+      WRITE_ASCII ("%itm_off%" + (0x14 * "%index%")) ~trolldie~
+    END
+  END
+
+// add monhp1 item to trolls to prevent death; assign script to force transformation to dead form at low HP
+COPY_EXISTING ~obsice01.cre~ ~override~
+  ADD_CRE_ITEM ~monhp1~ #0 #0 #0 ~NONE~ ~AMULET~
+  WRITE_ASCII 0x260 ~obsice11~
+
+// attacking squatters in paladin-baron quest causes normal townspeople to turn hostile
+COPY_EXISTING ~plfarm04.cre~ ~override~
+              ~plfarm05.cre~ ~override~
+              ~plfarm06.cre~ ~override~
+  WRITE_ASCII 0x248 ~gensht01~ // override script
+  BUT_ONLY_IF_IT_CHANGES
+
+// prevent dupe CoC items; see also sahkng01.bcs, ar2300.bcs, sahpr2.dlg, string sets
+COPY_EXISTING ~sahpr4.cre~ ~override~
+  READ_LONG  0x2bc "itm_off"
+  READ_LONG  0x2c0 "itm_num"
+  FOR (index = 0 ; index < itm_num ; index = index + 1) BEGIN
+    READ_ASCII ("%itm_off%" + (0x14 * "%index%")) "item"
+    PATCH_IF ("%item%" STRING_COMPARE_CASE "misc8q" = 0) BEGIN
+      READ_BYTE   ("%itm_off%" + 0x10 + (0x14 * "%index%")) "flags"
+      WRITE_BYTE  ("%itm_off%" + 0x10 + (0x14 * "%index%")) ("%flags%" BOR   0b00001010) // adds unstealable, undroppable flags
+    END
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// name fixes
+COPY_EXISTING ~sarbul04.cre~ ~override~
+              ~sarbul05.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
+    WRITE_LONG 0x08 68792
+    WRITE_LONG 0x0c 68792
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// Orcs sound like orcs; blanks human sounds
+COPY_EXISTING ~sarculto.cre~ ~override~
+              ~sarorc01.cre~ ~override~
+              ~saroro01.cre~ ~override~
+              ~sarrein1.cre~ ~override~
+              ~sartro01.cre~ ~override~
+              ~sartro03.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
+    WRITE_LONG 0xa4 0xffffffff
+    WRITE_LONG 0xc8 0xffffffff
+    WRITE_LONG 0xec 0xffffffff
+    WRITE_LONG 0xf0 0xffffffff
+    WRITE_LONG 0x10c 0xffffffff
+    WRITE_LONG 0x198 0xffffffff
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// Silent Sapper (uses same soundset as sewdue01)
+COPY_EXISTING ~sewdue02.cre~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
+    SAY 0xa4 #4940
+    SAY 0xec #12584
+    SAY 0xf0 #12585
+    SAY 0x10c #4939
+    SAY 0x110 #4940
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// 'glowing pool' creature from lilarcor quest has dispellable invisibility (via mage item); add it directly as creature effect
+COPY_EXISTING ~sewsw.cre~  ~override~
+  PATCH_IF (SOURCE_SIZE > 0x2d3) THEN BEGIN // protects against invalid files
+    READ_LONG 0x2a0 "kspl_off"
+    READ_LONG 0x2a8 "minfo_off"
+    READ_LONG 0x2b0 "mspl_off"
+    READ_LONG 0x2b8 "itmslot_off"
+    READ_LONG 0x2bc "itm_off"
+    READ_LONG 0x2c4 "fx_off"
+    READ_LONG 0x2c8 "fx_num"
+    SET "delta" = 1
+    INSERT_BYTES  "%fx_off%" 0x108 // inserting new effect
+      WRITE_LONG  ("%fx_off%" + 0x08)  20 // opcode: invis
+      WRITE_LONG  ("%fx_off%" + 0x1c)   1 // instant/permanent
+      WRITE_SHORT ("%fx_off%" + 0x24) 100 // prob
+    WRITE_LONG 0x2c8 ("%fx_num%" + "%delta%")
+    SET "offset" = ("%delta%" * 0x108)
+    PATCH_IF NOT ("%fx_off%" > "%kspl_off%") BEGIN
+      WRITE_LONG 0x2a0 ("%kspl_off%" + "%offset%")
+    END
+    PATCH_IF NOT ("%fx_off%" > "%minfo_off%") BEGIN
+      WRITE_LONG 0x2a8 ("%minfo_off%" + "%offset%")
+    END
+    PATCH_IF NOT ("%fx_off%" > "%mspl_off%") BEGIN
+      WRITE_LONG 0x2b0 ("%mspl_off%" + "%offset%")
+    END
+    PATCH_IF NOT ("%fx_off%" > "%itmslot_off%") BEGIN
+      WRITE_LONG 0x2b8 ("%itmslot_off%" + "%offset%")
+    END
+    PATCH_IF NOT ("%fx_off%" > "%itm_off%") BEGIN
+      WRITE_LONG 0x2bc ("%itm_off%" + "%offset%")
+    END
+  END
+  BUT_ONLY_IF_IT_CHANGES
+
+// add sleeping flag to sleeping creatures
+COPY_EXISTING ~sleepdw.cre~ ~override~   // sleeping dwarf
+              ~sleepfh.cre~ ~override~   // sleeping woman
+              ~sleepmh.cre~ ~override~   // sleeping man
+  READ_BYTE  0x20 "state"
+  WRITE_BYTE 0x20 ("%state%" BOR 0b00000001) // add the STATE_SLEEPING flag
+  BUT_ONLY_IF_IT_CHANGES
+
+// knocked-down trolls should match their live counterparts
+COPY_EXISTING ~troll02.cre~ ~override~
+  WRITE_BYTE 0x234 8
+  BUT_ONLY_IF_IT_CHANGES
+
+// knocked-down trolls should match their live counterparts
+COPY_EXISTING ~troll01.cre~ ~override/cdtroll1.cre~
+              ~troll02.cre~ ~override/cdtroll2.cre~
+  WRITE_BYTE   0x234 6
+  WRITE_ASCIIE 0x248 ~%DEST_RES%~
+
+// Correct a minor issue in Mazzy's soundset (aVENGER)
+ACTION_FOR_EACH ~file~ IN                                                          // for each of the following files
+               ~mazzy8~                                                            // Mazzy at level 8 (SoA)
+               ~mazzy9~                                                            // Mazzy at level 9 (SoA)
+              ~mazzy11~                                                            // Mazzy at level 11 (SoA)
+              ~mazzy12~                                                            // Mazzy at level 12 (SoA)
+              ~mazzy15~                                                            // Mazzy at level 15 (ToB)
+BEGIN                                                                              // execute the following
+ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN                                   // if the file exists
+COPY_EXISTING ~%file%.cre~ ~override~
+PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN                                        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
+  SAY EXISTANCE2 #29727 SAY EXISTANCE3 #-1                                         // assign the Spell Failed sound to the proper soundslot
+END                                                                                // ends file size check
+BUT_ONLY_IF_IT_CHANGES
+END                                                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
+END                                                                                // ends ACTION_FOR_EACH block
+
+// Prevent Ice Trolls from losing their coloring upon death (aVENGER)
+COPY_EXISTING ~TROLIC01.CRE~  ~override~ // Ice Troll
+              ~TROLIC02.CRE~  ~override~ // Ice Troll
+    READ_LONG 0x2c4 "fx_off"
+    READ_LONG 0x2c8 "fx_num"
+    FOR (index = 0; index < fx_num; index = index + 1) BEGIN
+      READ_LONG  ("%fx_off%" + 0x08 + ("%index%" * 0x108)) "opcode"
+      READ_LONG  ("%fx_off%" + 0x0c + ("%index%" * 0x108)) "target"
+      READ_LONG  ("%fx_off%" + 0x1c + ("%index%" * 0x108)) "timing"
+       PATCH_IF (("%opcode%" = "51") AND ("%target%" = "0")) BEGIN // effect #51: color strong/dark by rgb
+         WRITE_LONG ("%fx_off%" + 0x0c + ("%index%" * 0x108)) "1" // change the target to 1 (target: self)
+       END
+       PATCH_IF (("%opcode%" = "51") AND ("%timing%" = "1")) BEGIN // effect #51: color strong/dark by rgb
+         WRITE_LONG ("%fx_off%" + 0x1c + ("%index%" * 0x108)) "9" // change the timing mode to 9: permanent after death
+       END
+    END    
+BUT_ONLY_IF_IT_CHANGES
+
+// Correct mismatched names and tooltips (Nythrun and aVENGER)
+// Part 1: Name -> Tooltip
+ACTION_FOR_EACH ~file~ IN                          // for each of the following files
+            ~alphonse~                             // alphonse - servant
+            ~elesah02~                             // sahuagin baronial guard - baronial guard
+            ~kuotoa01~                             // kuo-toa warrior - kuo-toa
+            ~obssah03~                             // sahuagin baronial guard - baronial guard
+            ~sahbar01~                             // sahuagin baronial guard - baronial guard
+            ~sahextra~                             // sahuagin royal guard - royal guard
+            ~sahgrd01~                             // sahuagin royal guard - royal guard
+            ~sahgrd02~                             // sahuagin royal guard - royal guard
+            ~sahgrd03~                             // sahuagin royal guard - royal guard
+BEGIN                                              // execute the following
+ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN   // if the file exists
+COPY_EXISTING ~%file%.cre~ ~override~
+PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
+  READ_LONG  0x08 "name"                           // get the creature's name field strref
+  WRITE_LONG 0x0c "%name%"                         // make the creature's tooltip match its name
+END                                                // ends file size check
+BUT_ONLY_IF_IT_CHANGES
+END                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
+END                                                // ends ACTION_FOR_EACH block
+
+// Correct mismatched names and tooltips (Nythrun and aVENGER)
+// Part 2: Tooltip -> Name
+ACTION_FOR_EACH ~file~ IN                          // for each of the following files
+            ~behobs01~                             // beholder - observer
+            ~behspe01~                             // beholder - spectator
+            ~gendjn01~                             // djinni - noble djinni
+            ~genefn01~                             // efreeti - noble efreeti
+            ~kptrol06~                             // troll - ice troll
+             ~lasmist~                             // djinni - gaseous form
+            ~obsfir01~                             // efreeti - noble efreeti
+            ~ppbodbat~                             // vampire - vampire bat
+            ~ppdjinn2~                             // djinni - noble djinni
+            ~ppmind01~                             // mind flayer - ulitharid
+            ~rngbeh01~                             // beholder - death tyrant
+            ~tanomist~                             // vampire - gaseous form
+            ~trolfr01~                             // troll - freshwater troll
+            ~trolfr02~                             // troll - freshwater troll
+            ~trolsn01~                             // troll - snow troll
+            ~trolsn02~                             // troll - snow troll
+             ~udelder~                             // beholder - elder orb
+            ~valemist~                             // vampire - gaseous form
+             ~vampbat~                             // vampire - vampire bat
+BEGIN                                              // execute the following
+ACTION_IF FILE_EXISTS_IN_GAME ~%file%.cre~ BEGIN   // if the file exists
+COPY_EXISTING ~%file%.cre~ ~override~
+PATCH_IF (%SOURCE_SIZE% > 0x2d3) THEN BEGIN        // file size sanity check (filters out 0 byte files i.e. ALLOW_MISSING)
+  READ_LONG  0x0c "tooltip"                        // get the creature's tooltip field strref
+  WRITE_LONG 0x08 "%tooltip%"                      // make the creature's name match its tooltip
+END                                                // ends file size check
+BUT_ONLY_IF_IT_CHANGES
+END                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
+END                                                // ends ACTION_FOR_EACH block
+
+// Jan Jansen now properly receives his bonus spell per level for being a specialist mage (Nythrun)
+COPY_EXISTING jan8.cre     override
+              jan10.cre    override
+              jan11.cre    override
+              jan12.cre    override
+              jan15.cre    override
+  PATCH_IF SOURCE_SIZE > 0x2d3 BEGIN
+    ADD_MEMORIZED_SPELL spwi118 #0 WIZARD
+    ADD_MEMORIZED_SPELL spwi201 #1 WIZARD
+    ADD_MEMORIZED_SPELL spwi302 #2 WIZARD
+    PATCH_IF          ~%SOURCE_RES%~ STRING_EQUAL jan8  BEGIN
+      ADD_MEMORIZED_SPELL spwi405 #3 WIZARD
+    END ELSE PATCH_IF ~%SOURCE_RES%~ STRING_EQUAL jan10 BEGIN
+      ADD_MEMORIZED_SPELL spwi405 #3 WIZARD
+      ADD_MEMORIZED_SPELL spwi508 #4 WIZARD
+    END ELSE BEGIN
+      ADD_MEMORIZED_SPELL spwi401 #3 WIZARD
+      ADD_MEMORIZED_SPELL spwi508 #4 WIZARD
+    END
+  END
+BUT_ONLY
+
+// Creatures shouldn't have two-handed items equipped alongside shields (Nythrun and devSin)
+// Orc Archer
+COPY_EXISTING firarc01.cre override
+  REMOVE_CRE_ITEM shld05
+
+// Rielev 
+COPY_EXISTING rielev.cre override
+  REMOVE_CRE_ITEM mage01
+
+// Red Willy 
+COPY_EXISTING trple01.cre override
+  REMOVE_CRE_ITEM xbow01 bolt01
+
+// Lady Beth
+COPY_EXISTING bystand2.cre override
+  WRITE_ASCII 0x250 ~~ #8
+BUT_ONLY
+
 /////                                                  \\\\\
 ///// item file fixes                                  \\\\\
 /////                                                  \\\\\
@@ -14199,7 +14200,7 @@ COPY_EXISTING ~amul16.itm~   ~override~ // metaspell influence amulet
 //              ~scrl5d.itm~   ~override~ // protection from evil 10'
 //              ~scrl5e.itm~   ~override~ // champion's strength
 //              ~scrl5f.itm~   ~override~ // chaotic commands
-//              ~scrl5g.itm~   ~override~ // remove curse
+                ~scrl5g.itm~   ~override~ // remove curse (wizard version)
 //              ~scrl61.itm~   ~override~ // cure critical wounds
 //              ~scrl62.itm~   ~override~ // flame strike
 //              ~scrl63.itm~   ~override~ // raise dead
@@ -15376,61 +15377,45 @@ COPY_EXISTING ~ax1h10.itm~ ~override~
   CLEAR_ARRAY ab_array
   GET_OFFSET_ARRAY ab_array 0x64 4 0x68 2 0 0 0x38
   PHP_EACH ab_array AS int => goa_abil_off BEGIN
-	CLEAR_ARRAY fx_array
-	GET_OFFSET_ARRAY2 fx_array goa_abil_off 0x6a 4 0x1e 2 0x20 2 0x30
-	PHP_EACH fx_array AS int => goa_fx_off BEGIN
-	  t_fx_num += 1
-	END
-  END
-PATCH_IF 0x72 + abil_num*0x38 + 0x30*t_fx_num < BUFFER_LENGTH BEGIN
-  DELETE_BYTES 0x72 + abil_num*0x38 + 0x30*t_fx_num BUFFER_LENGTH - (0x72 + abil_num*0x38 + 0x30*t_fx_num)
-END
-LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EQEFFECT~ INT_VAR "opcode_to_delete" = "177" END              // delete the old, incorrect bonus damage effect
-LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EFFECT~ INT_VAR "opcode_to_delete" = "177" header = "-1" END  // delete the Baldurdash undead slaying effect
-LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EFFECT~ INT_VAR opcode_to_delete = "55" header = "-1" END     // delete the old, incorrect undead slaying effect
-FOR (index4 = 0; index4 < "%abil_num%"; index4 += 1) BEGIN
-  READ_BYTE   ("%abil_off%" +        ("%index4%" * 0x38)) "abil_type"
-// note: the extra damage and the "Undead Destroyed" string need to go before the death effect, otherwise they won't display in the combat log
-  PATCH_IF (%abil_type% = 1) BEGIN                                              // melee ability header
-  READ_SHORT  ("%abil_off%" + 0x1e + ("%index4%" * 0x38)) "abil_fx_num"
-  READ_SHORT  ("%abil_off%" + 0x20 + ("%index4%" * 0x38)) "abil_fx_idx"
-    PATCH_FOR_EACH ~resref~ IN ~die~ ~mesdie~ ~ax1h10a~ BEGIN 
-     INSERT_BYTES ("%fx_off%" +        ("%abil_fx_idx%" * 0x30))      0x30      // new effect
-     WRITE_SHORT  ("%fx_off%" +        ("%abil_fx_idx%" * 0x30))       177      // use eff
-     WRITE_BYTE   ("%fx_off%" + 0x02 + ("%abil_fx_idx%" * 0x30))         2      // target: preset target
-     WRITE_LONG   ("%fx_off%" + 0x04 + ("%abil_fx_idx%" * 0x30))         4      // param1
-     WRITE_LONG   ("%fx_off%" + 0x08 + ("%abil_fx_idx%" * 0x30))         3      // param2
-     WRITE_BYTE   ("%fx_off%" + 0x0c + ("%abil_fx_idx%" * 0x30))         1      // timing
-     WRITE_BYTE   ("%fx_off%" + 0x12 + ("%abil_fx_idx%" * 0x30))       100      // probability
-     WRITE_ASCIIE ("%fx_off%" + 0x14 + ("%abil_fx_idx%" * 0x30)) ~%resref%~ #8  // resref
-     SET %abil_fx_num% += 1                                                     // number of ability effects
+    CLEAR_ARRAY fx_array
+    GET_OFFSET_ARRAY2 fx_array goa_abil_off 0x6a 4 0x1e 2 0x20 2 0x30
+    PHP_EACH fx_array AS int => goa_fx_off BEGIN
+      t_fx_num += 1
     END
-  WRITE_SHORT (%abil_off% + %index4% * 0x38 + 0x1e) %abil_fx_num%               // update the number of ability effects
   END
-END
-FOR (index5 = 0; index5 < "%abil_num%"; index5 += 1) BEGIN
-  READ_BYTE   ("%abil_off%" +        ("%index5%" * 0x38)) "abil_type"
-  PATCH_IF (%abil_type% = 2) BEGIN                                              // ranged ability header
-  READ_SHORT  ("%abil_off%" + 0x1e + ("%index5%" * 0x38)) "abil_fx_num"
-  READ_SHORT  ("%abil_off%" + 0x20 + ("%index5%" * 0x38)) "abil_fx_idx"
-    WRITE_SHORT ("%abil_off%" + 0x18) 1                                         // adjust dice rolls (1d6)
-    WRITE_BYTE  ("%abil_off%" + 0x26) 1                                         // allow strength bonus
-    PATCH_FOR_EACH ~resref~ IN ~die~ ~mesdie~ ~ax1h10b~ BEGIN 
-     INSERT_BYTES ("%fx_off%" +        ("%abil_fx_idx%" * 0x30))      0x30      // new effect
-     WRITE_SHORT  ("%fx_off%" +        ("%abil_fx_idx%" * 0x30))       177      // use eff
-     WRITE_BYTE   ("%fx_off%" + 0x02 + ("%abil_fx_idx%" * 0x30))         2      // target: preset target
-     WRITE_LONG   ("%fx_off%" + 0x04 + ("%abil_fx_idx%" * 0x30))         4      // param1
-     WRITE_LONG   ("%fx_off%" + 0x08 + ("%abil_fx_idx%" * 0x30))         3      // param2
-     WRITE_BYTE   ("%fx_off%" + 0x0c + ("%abil_fx_idx%" * 0x30))         1      // timing
-     WRITE_BYTE   ("%fx_off%" + 0x12 + ("%abil_fx_idx%" * 0x30))       100      // probability
-     WRITE_ASCIIE ("%fx_off%" + 0x14 + ("%abil_fx_idx%" * 0x30)) ~%resref%~ #8  // resref
-     SET %abil_fx_num% += 1                                                     // number of ability effects
+  PATCH_IF 0x72 + abil_num*0x38 + 0x30*t_fx_num < BUFFER_LENGTH BEGIN
+    DELETE_BYTES 0x72 + abil_num*0x38 + 0x30*t_fx_num BUFFER_LENGTH - (0x72 + abil_num*0x38 + 0x30*t_fx_num)
+  END
+  LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EQEFFECT~ INT_VAR "opcode_to_delete" = "177" END              // delete the old, incorrect bonus damage effect
+  LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EFFECT~ INT_VAR "opcode_to_delete" = "177" header = "-1" END  // delete the Baldurdash undead slaying effect
+  LAUNCH_PATCH_FUNCTION ~DELETE_ITEM_EFFECT~ INT_VAR opcode_to_delete = "55" header = "-1" END     // delete the old, incorrect undead slaying effect
+  // note: the extra damage and the "Undead Destroyed" string need to go before the death effect, otherwise they won't display in the combat log
+  PATCH_FOR_EACH type IN 2 1 BEGIN
+    PATCH_IF type = 1 BEGIN
+      SPRINT damage ax1h10a        //Slashing damage for melee header
+    END ELSE SPRINT damage ax1h10b //Missile damage for ranged header
+    PATCH_FOR_EACH resref IN mesdie "%damage%" die BEGIN
+      LPF ADD_ITEM_EFFECT
+        INT_VAR
+          type
+          opcode = 177   //use eff  
+          target = 2
+          parameter1 = 4 //undead
+          parameter2 = 3 //general.ids
+          timing = 1
+        STR_VAR
+          resource = EVAL "%resref%"
+      END
     END
-  WRITE_SHORT (%abil_off% + %index5% * 0x38 + 0x1e) %abil_fx_num%               // update the number of ability effects
   END
-END
-BUT_ONLY_IF_IT_CHANGES
-
+  FOR (i =  0; i < abil_num; ++i) BEGIN
+    READ_BYTE abil_off + i * 0x38 abil_type
+    PATCH_IF abil_type = 2 BEGIN                //ranged
+      WRITE_SHORT abil_off + 0x18 1             //number of dice of damage (1d6)
+      WRITE_BYTE  abil_off + 0x26 THIS BOR BIT0 //allow strength bonus
+    END
+  END
+BUT_ONLY
 
 // name fix for FoA +2
 COPY_EXISTING ~blun14d.itm~ ~override~
@@ -18785,7 +18770,7 @@ ACTION_DEFINE_ASSOCIATIVE_ARRAY fl#speed_item BEGIN
   SPER12   => 1  //Ixil's Spike +6
   STAF04   => 4  //Quarterstaff
   STAF05   => 1  //Staff of Striking
-  STAF11   => 3  //Staff of the Magi
+  //STAF11   => 1  //Staff of the Magi
   STAF13   => 2  //Staff of Thunder and Lightning
   SW1H26   => 2  //Ilbratha +1
   SW1H53   => 4  //Sword of Flame +1
@@ -18839,6 +18824,14 @@ ACTION_PHP_EACH fl#weight_item AS item => weight BEGIN
     BUT_ONLY
   END
 END
+
+//Correcting the damage of Bruenor's axe to be in line with the description (Wisp)
+COPY_EXISTING bruenaxe.itm override
+  READ_LONG 0x64 ao
+  FOR (i = 0; i < SHORT_AT 0x68; ++i) BEGIN
+    WRITE_BYTE ao + 0x38 * i + 0x18 1 //1dN
+  END
+BUT_ONLY
 
 // ammo with prof 0 removes non-prof penalty
 COPY_EXISTING ~arow01.itm~   ~override~ // arrows - arrows w/o shortbow prof
@@ -18981,30 +18974,28 @@ COPY_EXISTING ~dart03.itm~   ~override~
   END
   BUT_ONLY_IF_IT_CHANGES
 
-// int drain immunity should also suppress strings, icon
+// int drain immunity should also suppress strings, icon (revised by Wisp)
 COPY_EXISTING ~ipsion.itm~ ~override~
-  READ_LONG   0x64 "abil_off"
-  READ_SHORT  0x68 "abil_num"
-  READ_LONG   0x6a "fx_off"
-  READ_SHORT  0x70 "fx_num"
-  WRITE_SHORT 0x70 ("%fx_num%" + 3)
-  FOR (index = 0 ; index < abil_num ; index = index + 1) BEGIN
-    READ_SHORT  ("%abil_off%" + 0x20 + ("%abil_num%" * 0x38)) "abil_fx_idx"
-    WRITE_SHORT ("%abil_off%" + 0x20 + ("%abil_num%" * 0x38)) ("%abil_fx_idx%" + 3)
+  LPF ADD_ITEM_EQEFFECT
+    INT_VAR
+      opcode = 169             //prevent portrait icon
+      target = 1
+      parameter2 = 86          //icon: int drain
+      timing = 2
   END
-  FOR (index2 = 0 ; index2 < 3 ; index2 = index2 + 1) BEGIN
-    INSERT_BYTES  ("%fx_off%"       ) 0x30
-      WRITE_SHORT ("%fx_off%"       ) 267  // disable display string
-      WRITE_BYTE  ("%fx_off%" + 0x02) 1    // target self
-      WRITE_BYTE  ("%fx_off%" + 0x0c) 2    // instant/while equipped
-      WRITE_BYTE  ("%fx_off%" + 0x0d) 1    // dispel/bypass
-      WRITE_BYTE  ("%fx_off%" + 0x12) 100  // probability 1
+  PATCH_FOR_EACH parameter1 IN
+                 14021         // string: int modification
+                 32089         // string: devour brain
+  BEGIN
+    LPF ADD_ITEM_EQEFFECT
+      INT_VAR
+        opcode = 267           //protection from display string 
+        target = 1
+        parameter1
+        timing = 2
+    END
   END
-  WRITE_SHORT ("%fx_off%"       ) 169   // prevent portrait icon
-  WRITE_SHORT ("%fx_off%" + 0x08) 86    // icon: int drain
-  WRITE_SHORT ("%fx_off%" + 0x34) 14021 // string: int modification
-  WRITE_SHORT ("%fx_off%" + 0x64) 32089 // string: devour brain
-  BUT_ONLY_IF_IT_CHANGES
+BUT_ONLY
 
 // book of infinite spells; see all misc3a*.itm
 COPY_EXISTING ~misc3a.itm~ ~override/misc3aa.itm~ // zero lore copy
@@ -19696,6 +19687,7 @@ ACTION_IF NOT FILE_EXISTS_IN_GAME ~mel01.cre~ THEN BEGIN // SoA-only fix
     BUT_ONLY_IF_IT_CHANGES
 
 END
+
 
 /////                                                  \\\\\
 ///// spell fixes                                      \\\\\
@@ -20483,7 +20475,8 @@ COPY_EXISTING ~spcl415.spl~ ~override~ // otiluke's sphere (special snare)
   FOR (index = 0 ; index < abil_num ; index = index + 1) BEGIN
     READ_SHORT  ("%abil_off%" + 0x10 + (0x28 * "%index%")) "level"
     READ_SHORT  ("%abil_off%" + 0x20 + (0x28 * "%index%")) "abil_fx_idx"
-    WRITE_SHORT  ("%abil_off%" + 0x20 + (0x28 * "%index%")) ("%abil_fx_idx%" + "%fx_delta%")
+    abil_fx_idx += fx_delta
+    WRITE_SHORT  ("%abil_off%" + 0x20 + (0x28 * "%index%")) abil_fx_idx
     PATCH_IF ((("%level%" = 16) AND ("%SOURCE_RES%" STRING_COMPARE_CASE "spcl415" = 0)) OR // otilukes from snare
                ("%SOURCE_RES%" STRING_COMPARE_CASE "spwi413" = 0)) BEGIN                   // otilukes from arcana
       READ_SHORT  ("%abil_off%" + 0x1e + (0x28 * "%index%")) "abil_fx_num"
@@ -21630,7 +21623,7 @@ COPY_EXISTING ~spin575.spl~  ~override~ // slow
     END
   END
   BUT_ONLY_IF_IT_CHANGES
-  
+
 // beholder death ray should be subject to MR
 COPY_EXISTING ~spin991.spl~ ~override~
   READ_LONG  0x64 "abil_off"
@@ -21778,11 +21771,9 @@ COPY_EXISTING ~sppr203.spl~  ~override~
         WRITE_BYTE  ("%eo%"+(0x30*("%ei%"+"%i2%"))+0x12) 0x64 // min prob 100%
       END                                                     // FOR i2 effect fleshing
       WRITE_SHORT   ("%ho%"+(0x28*"%i1%")+0x1e) 0x02          // effects for header i+1
-      FOR ("i3"="%i1%"; "%i3%"<"%hc%"; "i3"+=1)               BEGIN
+      FOR ("i3"="%i1%" + 1; "%i3%"<"%hc%"; "i3"+=1)           BEGIN //i1 + 1, because we only want to update the later headers
         READ_SHORT  ("%ho%"+(0x28*"%i3%")+0x20) "ix"          // search later header indices
-        PATCH_IF ("%ix%">0)                              THEN BEGIN
-          WRITE_SHORT ("%ho%"+(0x28*"%i3%")+0x20) (("%ix%"-"%ec%")+0x02)
-        END                                                   // PATCH_IF
+        WRITE_SHORT ("%ho%"+(0x28*"%i3%")+0x20) (("%ix%"-"%ec%")+0x02)
       END                                                     // FOR i3; rewriting ability effect indices
     END                                                       // FOR i1
   END                                                         // PATCH_IF filesize check
@@ -22420,11 +22411,11 @@ COPY_EXISTING ~spwi101.spl~ ~override~
   READ_LONG   0x6a "fx_off"
   READ_SHORT  0x70 "fx_num"
   FOR ("index" = 0; "%index%" < "%abil_num%"; "index" = ("%index%" + 1)) BEGIN // first fix existing effects
-    WRITE_SHORT ("%abil_off%" + 0x0e + ("%index%" * 0x28)) 30 // corrects range
-    WRITE_SHORT ("%abil_off%" + 0x12 + ("%index%" * 0x28)) 1  // casting time
-    READ_SHORT  ("%abil_off%" + 0x10) "min_lev"
-    READ_SHORT  ("%abil_off%" + 0x1e) "abil_fx_num"
-    READ_SHORT  ("%abil_off%" + 0x20) "abil_fx_idx"
+    WRITE_SHORT ("%abil_off%" + index * 0x28 + 0x0e + ("%index%" * 0x28)) 30 // corrects range
+    WRITE_SHORT ("%abil_off%" + index * 0x28 + 0x12 + ("%index%" * 0x28)) 1  // casting time
+    READ_SHORT  ("%abil_off%" + index * 0x28 + 0x10) "min_lev"
+    READ_SHORT  ("%abil_off%" + index * 0x28 + 0x1e) "abil_fx_num"
+    READ_SHORT  ("%abil_off%" + index * 0x28 + 0x20) "abil_fx_idx"
     FOR ("index2" = 0; "%index2%" < "%abil_fx_num%"; "index2" = ("%index2%" + 1)) BEGIN
       READ_LONG ("%fx_off%" + 0x0e + (0x30 * ("%abil_fx_idx%" + "%index2%"))) "duration"
       PATCH_IF ("%duration%" > 5) BEGIN // longer than one round
@@ -22729,51 +22720,70 @@ COPY_EXISTING ~spwi313.spl~ ~override~
   END
   BUT_ONLY_IF_IT_CHANGES
 
-// protection from fire and protection from cold missing lev 19, 20 abilities
+// protection from fire and protection from cold missing lev 19, 20 abilities (revised by Wisp)
 COPY_EXISTING ~spwi319.spl~ ~override~
               ~spwi320.spl~ ~override~
-  READ_LONG  0x64 "abil_off"
-  READ_SHORT 0x68 "abil_num"
-  READ_LONG  0x6a "fx_off"
-  SET "delta" = 0
-  SET "loops" = 0
-  PATCH_IF ("%abil_num%" > 0) BEGIN // grabs last ability (lev 18)
-    READ_SHORT (("%fx_off%" - 0x28) + 0x10) "min_lev"
-  END
-  PATCH_IF ("%min_lev%" < 19) BEGIN
-    INSERT_BYTES "%fx_off%" 0x50
-    SET "delta" = 2
-    READ_ASCII (("%fx_off%" - 0x28)       ) "abil_clone" (0x28)
-    READ_SHORT (("%fx_off%" - 0x28) + 0x1e) "abil_fx_num"
-    READ_SHORT (("%fx_off%" - 0x28) + 0x20) "abil_fx_idx"
-  END
-  WHILE ("%delta%" > "%loops%") BEGIN // this clones the lev 18 abilities to the two new lev 19, 20 ones
-    WRITE_EVALUATED_ASCII (("%fx_off%" + (0x28 * "%loops%"))       ) "%abil_clone%"
-    WRITE_SHORT (("%fx_off%" + (0x28 * "%loops%")) + 0x10) ("%min_lev%" + 1 + "%loops%")
-    WRITE_SHORT (("%fx_off%" + (0x28 * "%loops%")) + 0x1e) "%abil_fx_num%"
-    WRITE_SHORT (("%fx_off%" + (0x28 * "%loops%")) + 0x20) ("%abil_fx_idx%" + (("%loops%" + 1) * "%abil_fx_num%"))
-    SET "loops" = ("%loops%" + 1)
-  END
-  WRITE_SHORT 0x68 ("%abil_num%" + "%delta%")
-  SET "fx_off" = ("%fx_off%" + (0x28 * "%delta%"))
-  WRITE_LONG  0x6a "%fx_off%"
-  INSERT_BYTES ("%fx_off%" + (0x30 * ("%abil_fx_num%" + "%abil_fx_idx%"))) (0x30 * (2 * "%abil_fx_num%"))
-  WHILE ("%delta%" > 0) BEGIN
-    SET "loops" = "%abil_fx_num%"
-    WHILE ("%loops%" > 0) BEGIN
-      SET "loops" = ("%loops%" - 1)
-      READ_ASCII  ("%fx_off%" + 0x00 + (0x30 * ("%loops%" + "%abil_fx_idx%"))) "clone" (0x30)
-      WRITE_EVALUATED_ASCII ("%fx_off%" + 0x00 + (0x30 * ("%loops%" + "%abil_fx_idx%")) + ("%delta%" * (0x30 * "%abil_fx_num%"))) "%clone%"
-      READ_LONG  ("%fx_off%" + 0x0e + (0x30 * ("%loops%" + "%abil_fx_idx%"))) "duration"
-      PATCH_IF ("%duration%" > 5) BEGIN
-        WRITE_LONG ("%fx_off%" + 0x0e + (0x30 * ("%loops%" + "%abil_fx_idx%")) + ("%delta%" * (0x30 * "%abil_fx_num%"))) ("%duration%" + ("%delta%" * 60))
-      END ELSE BEGIN
-        WRITE_LONG ("%fx_off%" + 0x0e + (0x30 * ("%loops%" + "%abil_fx_idx%")) + ("%delta%" * (0x30 * "%abil_fx_num%"))) "%duration%"
+  READ_LONG  0x64 abil_off
+  READ_SHORT 0x68 abil_num
+  READ_LONG  0x6a fx_off
+  19p = 0
+  20p = 0
+  FOR (i = 0; i < abil_num; ++i) BEGIN                  //Find the insertion points
+    READ_SHORT abil_off + 0x28 * i + 0x10 min_level
+    PATCH_IF min_level = 18 BEGIN
+      READ_ASCII abil_off + 0x28 * i        abil_clone (0x28)
+      READ_SHORT abil_off + 0x28 * i + 0x1e num_fx
+      READ_SHORT abil_off + 0x28 * i + 0x20 fx_idx
+      READ_ASCII fx_off + 0x30 * fx_idx fx_block_clone (0x30 * num_fx)
+      header_point = abil_off + 0x28 * (i + 1)          //+1, to get ahead of the level 18 header 
+      fx_point = fx_off + 0x30 * (fx_idx + num_fx)
+      FOR (j = abil_num - 1; j > 0; --j) BEGIN          //Verify that levels 19 and 20 are indeed missing; in this context j must always be positive, 
+                                                        //since we know we have at least one header for level 18
+        READ_SHORT abil_off + 0x28 * j + 0x10 check
+        PATCH_IF check = 18 BEGIN                       //No point in going further; it ain't here
+          j = 0
+        END
+        PATCH_IF check = 19 BEGIN
+          19p = 1
+          READ_SHORT abil_off + 0x28 * j + 0x1e 19num_fx
+          READ_SHORT abil_off + 0x28 * j + 0x20 19fx_idx
+          header_point = abil_off + 0x28 * (j + 1)      //If we have a level 19 header we need to update these
+          fx_point = fx_off + 0x30 * (19num_fx + 19fx_idx)
+        END
+        PATCH_IF check = 20 BEGIN
+          20p = 1
+        END
       END
     END
-    SET "delta" = ("%delta%" - 1)
   END
-  BUT_ONLY_IF_IT_CHANGES
+  PATCH_IF VARIABLE_IS_SET header_point BEGIN           //Insert new headers and effects, assuming nothing has gone wrong
+    PATCH_FOR_EACH level IN 20 19 BEGIN                 //Reversed to minimise the bookkeeping
+      PATCH_IF !EVAL "%level%p" BEGIN
+        INSERT_BYTES header_point         0x28
+        WRITE_ASCIIE header_point         "%abil_clone%"
+        WRITE_SHORT  header_point + 0x10  level
+        fx_idx += (num_fx * (level - 18))
+        WRITE_SHORT  header_point + 0x20  fx_idx
+        fx_off += 0x28
+        fx_point += 0x28
+        ++abil_num
+        INSERT_BYTES fx_point             0x30 * num_fx
+        WRITE_ASCIIE fx_point             "%fx_block_clone%"
+        FOR (i = 0; i < num_fx; ++i) BEGIN              //Adjust the duration for the new effects, 1 turn/level, but not for the instant or
+                                                        //near-instant effects
+          WRITE_LONG fx_point + 0x30 * i + 0xe THIS < 5 ? THIS : 60 * level
+        END
+      END
+    END
+  END
+  WRITE_SHORT 0x68 abil_num
+  WRITE_LONG  0x6a fx_off
+  READ_SHORT  0x70 fx_idx                               //aka number of global effects
+  FOR (i = 0; i < abil_num; ++i) BEGIN                  //Update fx_idx, in case there are headers for levels > 20
+    WRITE_SHORT abil_off + 0x28 * i + 0x20 fx_idx
+    fx_idx += SHORT_AT (abil_off + 0x28 * i + 0x1e)     //number of effects
+  END
+BUT_ONLY
 
 // confusion (mage) missing -2 save penalty
 COPY_EXISTING ~spwi401.spl~ ~override~
@@ -25235,6 +25245,37 @@ COPY_EXISTING ~SPGREORB.PRO~ ~OVERRIDE~
   WRITE_ASCII 0x010c ~SPCHRORB~ #8
   WRITE_BYTE 0x0100 ~%projectileFlags%~ BOR 0x20
   BUT_ONLY_IF_IT_CHANGES
+
+//The progression of the Kensai abilities SPCL141 and SPCL143 are both irregular; the table is also one cell short in the first row
+//The levels for SPCL143 for level < 9 are the same as vanilla
+COPY_EXISTING clabfi04.2da override
+  REPLACE_TEXTUALLY ~AP_SPCL141[ %TAB%]+\*\*\*\*[ %TAB%]+AP_SPCL141~
+                    ~AP_SPCL141  **** ****  AP_SPCL141~            //Fix the broken progression for SPCL141 by adding the missing cell
+  REPLACE_TEXTUALLY AP_SPCL143 "****"                              //Remove all instances of SPCL143 and start from scratch
+  COUNT_2DA_COLS cols
+  READ_2DA_ENTRIES_NOW "#rclabfi04" cols
+  PATCH_FOR_EACH j IN 1 4 BEGIN                                    //Write the entries for levels < 8
+    FOR (i = 0; i < "#rclabfi04"; ++i) BEGIN
+      READ_2DA_ENTRY_FORMER "#rclabfi04" i j entry
+      PATCH_IF "%entry%" STRING_EQUAL "****" BEGIN
+        SET_2DA_ENTRY_LATER "#sclabfi04" i j AP_SPCL143
+        i = "#rclabfi04"
+      END
+    END
+  END
+  FOR (i = 8; i < cols; i += 4) BEGIN                              //Add abilities every 4 levels starting at level 8
+    FOR (j = 0; j < "#rclabfi04"; ++j) BEGIN
+      READ_2DA_ENTRY_FORMER "#rclabfi04" j i entry
+      PATCH_IF "%entry%" STRING_EQUAL "****" BEGIN
+        SET_2DA_ENTRY_LATER "#sclabfi04" j i AP_SPCL143
+        j = "#rclabfi04"
+      END
+    END
+  END
+  SET_2DA_ENTRIES_NOW "#sclabfi04" cols
+  PRETTY_PRINT_2DA
+BUT_ONLY
+
 
 /////                                                  \\\\\
 ///// vvc fixes                                        \\\\\
@@ -31023,9 +31064,52 @@ BUT_ONLY_IF_IT_CHANGES
 
 COMPILE ~bg2fixpack/dlg/beta_soa-dlg.d~
 
+<<<<<<<<inlined/dialogues/are/gauche/imoenfixtake2.d
+REPLACE_STATE_TRIGGER imoenp 3 ~Global("ImoenRunning","LOCALS",1)~
+SET_WEIGHT imoenp 3 #-1
+>>>>>>>>
+
+COMPILE ~inlined/dialogues/are/gauche/imoenfixtake2.d~
+  
+COPY ~bg2fixpack/wed/ar1900n.wed~ override
+
 ACTION_IF FILE_EXISTS_IN_GAME ~mel01.cre~ THEN BEGIN // tob only
 
   COMPILE ~bg2fixpack/dlg/beta_tob-dlg.d~
+
+  // celestial weapons turn opaque when attacking
+  COPY_EXISTING ~masgg2bw.bam~ ~override/maslg2bw.bam~
+                ~masgg2s1.bam~ ~override/maslg2s1.bam~
+                ~msogg2bw.bam~ ~override/msolg2bw.bam~
+                ~msogg2s1.bam~ ~override/msolg2s1.bam~
+  
+  // travel time fix for abazigal <--> WK
+  COPY_EXISTING ~worldm25.wmp~ ~override~
+    READ_LONG 0x0c "mos_off"
+    READ_LONG ("%mos_off%" + 0x20) "area_num"
+    READ_LONG ("%mos_off%" + 0x24) "area_off"
+    READ_LONG ("%mos_off%" + 0x28) "link_off"
+    FOR (index = 0 ; index < area_num ; index = index + 1) BEGIN
+      READ_ASCII ("%area_off%" + 0x08 + ("%index%" * 0xf0)) "area"
+      PATCH_IF ("%area%" STRING_COMPARE_CASE "ar3000" = 0) BEGIN // wk
+        SET "wk" = "%index%"
+      END ELSE
+      PATCH_IF ("%area%" STRING_COMPARE_CASE "ar6000" = 0) BEGIN // abazigal
+        SET "abazigal" = "%index%"
+      END
+    END
+    // read links
+    FOR (index2 = 0 ; index2 < 4 ; index2 = index2 + 1) BEGIN
+      READ_LONG ("%area_off%" + 0x50 + ("%index2%" * 0x08) + ("%wk%" * 0xf0)) "link_idx"
+      READ_LONG ("%area_off%" + 0x54 + ("%index2%" * 0x08) + ("%wk%" * 0xf0)) "link_num"
+      FOR (index3 = 0 ; index3 < link_num ; index3 = index3 + 1) BEGIN
+        READ_LONG ("%link_off%" +        (("%link_idx%" + "%index3%") * 0xd8)) "target"
+        PATCH_IF ("%target%" = "%abazigal%") BEGIN
+          WRITE_LONG ("%link_off%" + 0x24 + (("%link_idx%" + "%index3%") * 0xd8)) 9 // travel time
+        END
+      END
+    END
+    BUT_ONLY_IF_IT_CHANGES
 
 END
 
@@ -31117,10 +31201,35 @@ COPY_EXISTING ar0904.bcs override
 BUT_ONLY
 UNLESS ~16465 0 1 0 0 "talmiss[2]?" "" OB~
 
+// Drow etc. guarding the way out of the Underdark start to stutter if they are charmed after you have made an enemy of the Ust Natha (Wisp)
+COPY_EXISTING dwgates1.bcs override
+  DECOMPILE_AND_PATCH BEGIN
+    REPLACE_TEXTUALLY ~!Allegiance(Myself,ENEMY)~ ~!Allegiance(Myself,ENEMY) !StateCheck(Myself,STATE_CHARMED)~
+  END
+BUT_ONLY
+UNLESS ~16439 8192 1 0 0 "" "" OB~ //UNLESS !StateCheck(Myself,STATE_CHARMED)
+
+//Surface elves by the Underdark exit can bail out prematurely (Wisp)
+COPY_EXISTING udelf1.bcs override
+              udelf2.bcs override
+              udelf3.bcs override
+  DECOMPILE_AND_PATCH BEGIN
+    REPLACE_TEXTUALLY "\(See(\[PC\])[%LNL%%TAB% ]*CombatCounter(0)\)" "\1 !Detect([ENEMY])"
+  END
+BUT_ONLY
+UNLESS ~16500 0 1 0 0 "" "" OB%LNL%255 0 0 0 0 0 0 0 0 0 0 0 ""OB~ //UNLESS !Detect([ENEMY])
 
 /////                                                  \\\\\
 ///// area fixes                                       \\\\\
 /////                                                  \\\\\
+
+//Unreferenced night tilesets (Nythrun)
+//see also ar1900n.wed
+COPY_EXISTING ar1900.are override
+              ar2807.are override
+  READ_SHORT   0x48 location_flags
+  WRITE_SHORT  0x48 location_flags | 0x40
+BUT_ONLY
 
 /////                                                  \\\\\
 ///// creature file fixes                              \\\\\
@@ -31295,6 +31404,50 @@ ACTION_IF GAME_IS tob BEGIN
   BUT_ONLY
 END
 
+//Dawnmaster Kreel's amazing wardrobe change (Wisp)
+COPY_EXISTING dawnmas.cre override
+  o = 0x2c
+  PATCH_FOR_EACH colour IN 226 238 237 201 228 226 200 BEGIN //Values courtesy of cscleric.cre
+    WRITE_BYTE o colour
+    ++o
+  END
+  REMOVE_CRE_ITEMS
+  ADD_CRE_ITEM staf01 #0 #0 #0 none weapon1 EQUIP TWOHANDED
+  ADD_CRE_ITEM chan01 #0 #0 #0 none armor
+  ADD_CRE_ITEM rndtre02 #0 #0 #0 none inv7
+  
+//Tabitha should be immune to charm (Wisp)
+COPY_EXISTING coplion.cre override
+  LPF ADD_CRE_EFFECT
+    INT_VAR
+      opcode = 101 //immunity to opcode
+      parameter2 = 5
+      timing = 9
+  END
+  LPF ADD_CRE_EFFECT
+    INT_VAR
+      opcode = 296 //immunity to animation
+      timing = 9
+    STR_VAR
+      resource = spnwchrm
+  END
+  PATCH_FOR_EACH parameter1 IN 14672 14780 8364 BEGIN
+    LPF ADD_CRE_EFFECT
+      INT_VAR
+        opcode = 267 //protection from display string
+        parameter1
+        timing = 9
+    END
+  END
+BUT_ONLY
+
+//Sahuagin with a gnoll soundset; strip him of all sounds, as that is how other Sahuagin roll (Wisp)
+COPY_EXISTING chevil04.cre override
+  PATCH_FOR_EACH offset IN 0xc8 0xcc 0xec 0xf0 0x10c 0x110 BEGIN
+    WRITE_LONG offset "-1"
+  END
+BUT_ONLY
+
 /////                                                  \\\\\
 ///// item file fixes                                  \\\\\
 /////                                                  \\\\\
@@ -31333,6 +31486,38 @@ COPY_EXISTING bolt07.itm override
     READ_SHORT  ao + 0x38*i + 0x20 ei
     FOR (j = 0; j < en; ++j) BEGIN
       WRITE_LONG eo + 0x30*(ei + j) + 0x28 0
+    END
+  END
+BUT_ONLY
+
+//Give Root of the Problem a price (Wisp)
+COPY_EXISTING blun10.itm override
+  WRITE_LONG 0x34 2750
+BUT_ONLY
+
+//Staff of Curing does not cure portrait icons (Wisp)
+COPY_EXISTING staf10.itm override
+  PATCH_FOR_EACH parameter2 IN 5 6 7 BEGIN //Intoxication, poison, disease
+    LPF ADD_ITEM_EFFECT
+      INT_VAR
+        opcode = 240
+        target = 2
+        power = 2
+        parameter2
+        timing = 1
+        resist_dispel = 3
+    END
+  END
+BUT_ONLY
+
+//Belt of Inertial Barrier displays MR icon instead of Resistance to Magic Energy (Wisp)
+COPY_EXISTING belt10.itm override
+  READ_LONG  0x6a eo
+  FOR (i = 0; i < SHORT_AT 0x70; ++i) BEGIN
+    READ_SHORT eo + 0x30 * i type
+    READ_LONG  eo + 0x30 * i + 0x8 p2
+    PATCH_IF type = 142 AND p2 = 63 BEGIN //Display icon; magic resistance
+      WRITE_LONG eo + 0x30 * i + 0x8 73 //Protection from Magical Energy
     END
   END
 BUT_ONLY
@@ -31386,6 +31571,86 @@ BUT_ONLY
 //see also sppr717.spl
 //panic for 1 round, portrait icon, display string; save vs. spell at -2; power 0
 COPY "bg2fixpack/copy/flpr717a.spl" override
+
+//Set power of summoning spells to 0, otherwise they can get blocked if the caster is under (M)GoI (code by Wisp; general idea by lotsa people)
+COPY_EXISTING
+  melis03.spl override //Taint of the Slayer
+  senspisu.spl override //Summon Spider
+  spcl621.spl override //Summon Spirit Animal
+  spcl923.spl override //Summon Deva
+  //spin534.spl override //Call Dark Horde, unused
+  //spin548.spl override //Gate, power is 0, unused
+  //spin549.spl override //Summon the Infernal Host, power is 0
+  //spin569.spl override //Summon Ice Salamander, power is 0
+  //spin570.spl override //Summon Fire Elemental, power is 0, unused
+  spin615.spl override //Knight
+  spin616.spl override //Flames
+  spin622.spl override //Skull
+  //spin631.spl override //Construct, unused
+  //spin637.spl override //Guile, unused
+  //spin638.spl override //Triumph, unused
+  //spin677.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin730.spl override //Summon Fungus, power is 0
+  //spin735.spl override //Wish, power is 0
+  //spin841.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin842.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin843.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin844.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin845.spl override //<Invalid Strref -1>, power is 0, unused
+  //spin855.spl override //<Invalid Strref -1>, power is 0
+  //spin856.spl override //<Invalid Strref -1>, power is 0
+  //spin857.spl override //<Invalid Strref -1>, power is 0
+  //spin870.spl override //<Invalid Strref -1>, power is 0
+  //spin880.spl override //<Invalid Strref -1>, power is 0
+  sppr301.spl override //Animate Dead
+  sppr402.spl override //Animal summoning I
+  sppr410.spl override //Call Woodland Beings
+  sppr501.spl override //Animal summoning II
+  sppr601.spl override //Aerial Servant
+  sppr602.spl override //Animal summoning III
+  sppr604.spl override //Conjure Animals
+  sppr605.spl override //Conjure Fire Elemental
+  sppr702.spl override //Conjure Earth Elemental
+  sppr703.spl override //Gate
+  sppr723.spl override //Elemental Summoning
+  sppr724.spl override //Greater Elemental Summoning
+  sppr726.spl override //Summon Deva
+  sppr727.spl override //Summon Fallen Deva
+  //spra304.spl override //Animal summoning I, power is 0
+  spra305.spl override //Animal summoning II
+  spra306.spl override //Animal summoning III
+  spwi309.spl override //Monster summoning I
+  spwi407.spl override //Monster summoning II
+  spwi423.spl override //Spider Spawn
+  spwi501.spl override //Animate Dead
+  spwi504.spl override //Monster summoning III
+  spwi516.spl override //Conjure Lesser Fire Elemental
+  spwi520.spl override //Conjure Lesser Air Elemental
+  spwi521.spl override //Conjure Lesser Earth Elemental
+  spwi601.spl override //Invisible Stalker
+  spwi619.spl override //Wyvern Call
+  spwi620.spl override //Conjure Fire Elemental
+  spwi621.spl override //Conjure Air Elemental
+  spwi622.spl override //Conjure Earth Elemental
+  spwi623.spl override //Carrion Summons
+  spwi624.spl override //Summon Nishruu
+  spwi707.spl override //Cacofiend
+  spwi716.spl override //Mordenkainen's Sword
+  spwi717.spl override //Summon Efreeti
+  spwi718.spl override //Summon Djinni
+  spwi719.spl override //Summon Hakeashar
+  //spwi722.spl override //Limited Wish, power is 0
+  spwi807.spl override //Summon Fiend
+  spwi905.spl override //Gate
+  spwi923.spl override //Summon Planetar
+  spwi924.spl override //Summon Dark Planetar
+  spwish18.spl override //Summon Dark Planetar
+  spwm154.spl override //Cacofiend
+  sumslay.spl override //Summon Slayer Shadow
+  FOR (READ_LONG 0x6a fx_off ELSE 0;fx_off<SOURCE_SIZE;fx_off+=0x30) BEGIN
+    WRITE_BYTE fx_off + 3 0
+  END
+BUT_ONLY
 
 /////                                                  \\\\\
 ///// store fixes                                      \\\\\
@@ -33094,30 +33359,15 @@ COPY_EXISTING_REGEXP GLOB ~^cdelfcm[0-6]\.eff$~ ~override~
   BUT_ONLY_IF_IT_CHANGES
 */
 
-// lets monks use all those cleric goodies again
+// undo monk item usability fixes
 /*
 COPY_EXISTING ~amul21.itm~   ~override~ // Amulet of power
               ~brac21.itm~   ~override~ // gauntlets of ex specialization
               ~ring22.itm~   ~override~ // ring o' holiness
               ~ring35.itm~   ~override~ // ring of lock picking
               ~ring40.itm~   ~override~ // ring of acuity
-              ~scrl56.itm~   ~override~ // cure serious wounds
-              ~scrl58.itm~   ~override~ // free action
-              ~scrl59.itm~   ~override~ // neutralize poison
-              ~scrl5a.itm~   ~override~ // mental domination
-              ~scrl5b.itm~   ~override~ // defensive harmony
-              ~scrl5c.itm~   ~override~ // protection from lightning
-              ~scrl5d.itm~   ~override~ // protection from evil 10'
-              ~scrl5e.itm~   ~override~ // champion's strength
-              ~scrl5f.itm~   ~override~ // chaotic commands
-              ~scrl5g.itm~   ~override~ // remove curse
-              ~scrl61.itm~   ~override~ // cure critical wounds
-              ~scrl62.itm~   ~override~ // flame strike
-              ~scrl63.itm~   ~override~ // raise dead
               ~scrl8c.itm~   ~override~ // stone to flesh
-              ~wa2amu.itm~   ~override~ // sensate amulet
               ~wa2ring.itm~  ~override~ // mercykiller ring
-              ~wand11.itm~   ~override~ // wand of the heavens
   PATCH_IF (%SOURCE_SIZE% > 0x71) THEN BEGIN
     READ_BYTE  0x21 "mu"
     WRITE_BYTE 0x21 ("mu" & (` 0xdf)) // removes monk unusability flag
